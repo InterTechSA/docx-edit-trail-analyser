@@ -1,0 +1,32 @@
+{
+  "sample_id": "03_tracked_changes",
+  "file": "samples/03_tracked_changes.docx",
+  "creation_method": "programmatically generated and then OOXML-patched with explicit retained w:del and w:ins elements",
+  "controlled_actions": [
+    "Start from the fixed baseline sentence",
+    "Represent deletion of \"brown\" as retained w:del",
+    "Represent insertion of \"red\" as retained w:ins",
+    "Retain both revision records without accepting them"
+  ],
+  "deliberate_deviations": [
+    "One retained deletion",
+    "One retained insertion"
+  ],
+  "expected_selected_evidence": {
+    "retained_insertions": 1,
+    "retained_deletions": 1,
+    "insertion_text": "red",
+    "deletion_text": "brown",
+    "revision_author": "Controlled Editor",
+    "revision_dates": [
+      "2026-09-05T18:25:00Z",
+      "2026-09-05T18:26:00Z"
+    ],
+    "classification": "retained tracked-revision evidence"
+  },
+  "research_limitations": [
+    "The revision markup is synthetic OOXML created for deterministic extractor validation.",
+    "It must not be presented as evidence of Microsoft Word's natural RSID or revision-generation behavior.",
+    "A later Word-native tracked-changes sample should be added for ecological/real-world validation."
+  ]
+}
