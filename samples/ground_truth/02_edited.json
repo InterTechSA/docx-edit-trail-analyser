@@ -1,0 +1,29 @@
+{
+  "sample_id": "02_edited",
+  "file": "samples/02_edited.docx",
+  "derived_from": "01_baseline.docx",
+  "creation_method": "baseline reopened and edited programmatically using python-docx",
+  "controlled_actions": [
+    "Replace \"brown\" with \"red\"",
+    "Insert \"lazy\" before \"dog\"",
+    "Add a second paragraph marking a known editing event",
+    "Save with a later controlled modified timestamp"
+  ],
+  "deliberate_deviations": [
+    "Known content replacement",
+    "Known content insertion",
+    "Known later modified timestamp"
+  ],
+  "known_final_text": "The quick red fox jumps over the lazy dog.",
+  "expected_selected_evidence": {
+    "retained_insertions": 0,
+    "retained_deletions": 0,
+    "context_metadata_present": true,
+    "modified_timestamp_later_than_baseline": true,
+    "rsid_expectation": "No claim; generator behavior is not Microsoft Word behavior."
+  },
+  "research_limitations": [
+    "The edit is known from ground truth, but ordinary saved content does not necessarily retain a recoverable edit record.",
+    "This sample is useful for demonstrating the limits of metadata-only inference."
+  ]
+}
