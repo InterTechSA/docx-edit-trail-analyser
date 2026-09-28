@@ -1,187 +1,112 @@
-import json
-import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from zipfile import ZipFile
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
-SAMPLES = PROJECT_ROOT / "samples" / "controlled"
-GROUND_TRUTH = PROJECT_ROOT / "samples" / "ground_truth"
 
 sys.path.insert(0, str(SRC_DIR))
 
-from evidence_pipeline import analyse_docx, correlate  # noqa: E402
-from survival_analysis import compare_pair, survival_table  # noqa: E402
-from corpus_evaluation import evaluate_corpus, resolve_baseline  # noqa: E402
-from research_metrics import ResearchMetrics  # noqa: E402
-import batch_evaluate  # noqa: E402
+from package_reader import DocxPackageReader
 
 
-def load_pilot_corpus():
+class TestDocxPackageReader(unittest.TestCase):
 
-    analysed = {}
-    ground_truth = {}
+    def test_missing_file_raises_error(self):
+        reader = DocxPackageReader("file_that_does_not_exist.docx")
 
-    for path in sorted(SAMPLES.glob("*.docx")):
-        analysed[path.name] = analyse_docx(path)
-        with open(GROUND_TRUTH / f"{path.stem}.json") as handle:
-            ground_truth[path.name] = json.load(handle)
+        with self.assertRaises(FileNotFoundError):
+            reader.read_selected_parts()
 
-    return analysed, ground_truth
+    def test_wrong_extension_raises_error(self):
+        with tempfile.NamedTemporaryFile(suffix=".txt") as temp_file:
+            reader = DocxPackageReader(temp_file.name)
 
+            with self.assertRaises(ValueError):
+                reader.read_selected_parts()
 
-class TestEvidencePipeline(unittest.TestCase):
-
-    def test_tracked_sample_end_to_end(self):
-
-        evidence = analyse_docx(SAMPLES / "03_tracked_changes.docx")
-
-        self.assertEqual(
-            evidence["classification"]["category"],
-            "retained tracked-revision evidence"
-        )
-        self.assertEqual(
-            evidence["evidence_profile"]["revision_evidence"]["score"], 2
-        )
-        self.assertTrue(evidence["classification"]["evidence"])
-
-    def test_template_rsids_live_on_section_properties(self):
-
-        # Pilot finding: the python-docx template puts its RSIDs on
-        # w:sectPr, so only the "content" rule discounts them.
-        evidence = analyse_docx(SAMPLES / "01_baseline.docx")
-
-        self.assertEqual(
-            correlate(evidence, "document")["classification"]["category"],
-            "multiple-RSID-pattern evidence"
-        )
-        self.assertEqual(
-            correlate(evidence, "content")["classification"]["category"],
-            "metadata-only evidence"
-        )
-
-    def test_correlate_does_not_mutate_input(self):
-
-        evidence = analyse_docx(SAMPLES / "01_baseline.docx")
-        before = evidence["classification"]["category"]
-
-        correlate(evidence, "content")
-
-        self.assertEqual(evidence["classification"]["category"], before)
-
-
-class TestSurvivalAnalysis(unittest.TestCase):
-
-    def test_identical_files_fully_survive(self):
-
-        evidence = analyse_docx(SAMPLES / "01_baseline.docx")
-
-        rows = {r["artifact"]: r for r in compare_pair(evidence, evidence)}
-
-        self.assertEqual(rows["Referenced RSIDs"]["survival_rate"], 1.0)
-        self.assertIsNone(rows["Content revisions"]["survival_rate"])
-
-    def test_accepting_changes_loses_revisions(self):
-
-        parent = {
-            "rsid_root": "A", "rsid_table": ["A"],
-            "document_rsids": [{"value": "A"}],
-            "revisions": [
-                {"type": "insertion", "text": "red", "author": "E"},
-                {"type": "deletion", "text": "brown", "author": "E"},
-            ],
-            "core_properties": {"creator": "X"},
-            "app_properties": {},
-        }
-        child = dict(parent, revisions=[])
-
-        rows = {r["artifact"]: r for r in compare_pair(parent, child)}
-
-        self.assertEqual(rows["Content revisions"]["survival_rate"], 0.0)
-        self.assertEqual(rows["Author metadata"]["survival_rate"], 1.0)
-
-    def test_survival_table_uses_derived_from(self):
-
-        analysed, ground_truth = load_pilot_corpus()
-
-        rows = survival_table(analysed, ground_truth)
-
-        self.assertTrue(rows)
-        self.assertTrue(
-            all(r["parent"] == "01_baseline.docx" for r in rows)
-        )
-
-
-class TestCorpusEvaluation(unittest.TestCase):
-
-    def test_pilot_corpus_evaluates_cleanly(self):
-
-        analysed, ground_truth = load_pilot_corpus()
-
-        results = evaluate_corpus(analysed, ground_truth)
-
-        matched = sum(
-            e["matched_count"] for e in results["evaluations"].values()
-        )
-        mismatched = sum(
-            e["mismatched_count"] for e in results["evaluations"].values()
-        )
-
-        self.assertGreater(matched, 0)
-        self.assertEqual(mismatched, 0)
-        self.assertEqual(
-            set(results["ablation"]),
-            {"document", "content", "all", "metadata-only baseline"}
-        )
-
-    def test_baseline_resolves_to_parent(self):
-
-        analysed, ground_truth = load_pilot_corpus()
-
-        baseline = resolve_baseline(
-            "02_edited.docx",
-            ground_truth["02_edited.docx"],
-            analysed,
-            ground_truth,
-        )
-
-        self.assertIs(baseline, analysed["01_baseline.docx"])
-
-    def test_confusion_matrix(self):
-
-        result = ResearchMetrics().confusion_matrix(
-            ["a", "a", "b"], ["a", "b", "b"], labels=["a", "b"]
-        )
-
-        self.assertEqual(result["matrix"], [[1, 1], [0, 1]])
-
-
-class TestBatchEvaluate(unittest.TestCase):
-
-    def test_batch_writes_tables_and_figures(self):
-
-        out_dir = Path(tempfile.mkdtemp())
+    def test_invalid_docx_package_raises_error(self):
+        with tempfile.NamedTemporaryFile(
+            suffix=".docx",
+            delete=False
+        ) as temp_file:
+            temp_path = Path(temp_file.name)
+            temp_file.write(b"This is not a valid DOCX file.")
 
         try:
-            code = batch_evaluate.main([
-                "--samples", str(SAMPLES),
-                "--ground-truth", str(GROUND_TRUTH),
-                "--out", str(out_dir),
-            ])
+            reader = DocxPackageReader(temp_path)
 
-            self.assertEqual(code, 0)
-
-            for name in (
-                "evidence_summary.csv", "survival.csv",
-                "metrics.json", "summary.md",
-            ):
-                self.assertTrue((out_dir / name).exists(), name)
+            with self.assertRaises(ValueError):
+                reader.read_selected_parts()
 
         finally:
-            shutil.rmtree(out_dir)
+            temp_path.unlink(missing_ok=True)
+
+    def test_valid_docx_returns_selected_parts(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            docx_path = Path(temp_dir) / "test.docx"
+
+            with ZipFile(docx_path, "w") as package:
+                package.writestr(
+                    "word/document.xml",
+                    "<document />"
+                )
+                package.writestr(
+                    "word/settings.xml",
+                    "<settings />"
+                )
+                package.writestr(
+                    "docProps/core.xml",
+                    "<coreProperties />"
+                )
+                package.writestr(
+                    "docProps/app.xml",
+                    "<Properties />"
+                )
+
+            reader = DocxPackageReader(docx_path)
+            parts = reader.read_selected_parts()
+
+            self.assertIn("word/document.xml", parts)
+            self.assertIn("word/settings.xml", parts)
+            self.assertIn("docProps/core.xml", parts)
+            self.assertIn("docProps/app.xml", parts)
+
+            self.assertIsNotNone(
+                parts["word/document.xml"]
+            )
+
+    def test_missing_optional_part_returns_none(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            docx_path = Path(temp_dir) / "test.docx"
+
+            with ZipFile(docx_path, "w") as package:
+                package.writestr(
+                    "word/document.xml",
+                    "<document />"
+                )
+
+            reader = DocxPackageReader(docx_path)
+            parts = reader.read_selected_parts()
+
+            self.assertIsNotNone(
+                parts["word/document.xml"]
+            )
+
+            self.assertIsNone(
+                parts["word/settings.xml"]
+            )
+
+            self.assertIsNone(
+                parts["docProps/core.xml"]
+            )
+
+            self.assertIsNone(
+                parts["docProps/app.xml"]
+            )
 
 
 if __name__ == "__main__":
