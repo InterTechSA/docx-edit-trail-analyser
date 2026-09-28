@@ -8,11 +8,10 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from package_reader import DocxPackageReader
-from xml_parser import TargetXmlParser
-from artifact_extractor import ArtifactExtractor
-from correlation_engine import CorrelationEngine
+from correlation_engine import RSID_SCOPES
 from corpus_comparison import CorpusComparison
+from corpus_evaluation import evaluate_corpus, resolve_baseline
+from evidence_pipeline import analyse_docx
 from ground_truth_evaluator import GroundTruthEvaluator
 from research_metrics import ResearchMetrics
 
@@ -47,154 +46,6 @@ def simplify_element_name(element_tag):
         return element_tag.split("}", 1)[1]
 
     return element_tag
-
-
-def analyse_docx(file_path):
-    """
-    Run the existing forensic extraction pipeline against
-    a DOCX file and return all observed evidence.
-    """
-
-    reader = DocxPackageReader(file_path)
-
-    parts = reader.read_selected_parts()
-
-    parser = TargetXmlParser()
-
-    extractor = ArtifactExtractor()
-
-    correlation_engine = CorrelationEngine()
-
-    parsed_parts = {}
-
-    missing_parts = []
-
-    for part_name, content in parts.items():
-
-        if content is None:
-            missing_parts.append(part_name)
-            continue
-
-        parsed_parts[part_name] = parser.parse(content)
-
-    rsid_root = None
-    rsid_table = []
-    document_rsids = []
-    revisions = []
-    core_properties = {}
-    app_properties = {}
-
-    settings_root = parsed_parts.get(
-        "word/settings.xml"
-    )
-
-    if settings_root is not None:
-
-        rsid_root = extractor.extract_rsid_root(
-            settings_root
-        )
-
-        rsid_table = extractor.extract_rsid_table(
-            settings_root
-        )
-
-    document_root = parsed_parts.get(
-        "word/document.xml"
-    )
-
-    if document_root is not None:
-
-        document_rsids = (
-            extractor.extract_document_rsids(
-                document_root
-            )
-        )
-
-        revisions = extractor.extract_revisions(
-            document_root
-        )
-
-    core_root = parsed_parts.get(
-        "docProps/core.xml"
-    )
-
-    if core_root is not None:
-
-        core_properties = (
-            extractor.extract_core_properties(
-                core_root
-            )
-        )
-
-    app_root = parsed_parts.get(
-        "docProps/app.xml"
-    )
-
-    if app_root is not None:
-
-        app_properties = (
-            extractor.extract_application_properties(
-                app_root
-            )
-        )
-
-    classification = correlation_engine.classify(
-        rsid_root=rsid_root,
-        rsid_table=rsid_table,
-        document_rsids=document_rsids,
-        revisions=revisions,
-        core_properties=core_properties,
-        app_properties=app_properties,
-    )
-
-    # -------------------------------------------------------
-    # Evidence profile: independent 0-3 scores per evidence
-    # dimension (revision / RSID / metadata). This is what
-    # drives the non-binary visualisation in the Interpretation
-    # tab. Unlike `classification`, which reports a single
-    # strongest pattern, this preserves every dimension so a
-    # document can register on more than one at once.
-    # -------------------------------------------------------
-
-    evidence_profile = correlation_engine.score_evidence_dimensions(
-        rsid_root=rsid_root,
-        rsid_table=rsid_table,
-        document_rsids=document_rsids,
-        revisions=revisions,
-        core_properties=core_properties,
-        app_properties=app_properties,
-    )
-
-    unique_rsids = set()
-
-    if rsid_root:
-        unique_rsids.add(rsid_root)
-
-    for rsid in rsid_table:
-
-        if rsid:
-            unique_rsids.add(rsid)
-
-    for item in document_rsids:
-
-        value = item.get("value")
-
-        if value:
-            unique_rsids.add(value)
-
-    return {
-        "parts": parts,
-        "missing_parts": missing_parts,
-        "rsid_root": rsid_root,
-        "rsid_table": rsid_table,
-        "document_rsids": document_rsids,
-        "unique_rsids": sorted(unique_rsids),
-        "revisions": revisions,
-        "core_properties": core_properties,
-        "app_properties": app_properties,
-        "classification": classification,
-        "evidence_profile": evidence_profile,
-    }
 
 
 def create_rsid_occurrence_table(
@@ -337,7 +188,8 @@ def analyse_uploaded_file(uploaded_file):
             )
 
         return analyse_docx(
-            temporary_path
+            temporary_path,
+            st.session_state.get("rsid_scope", "document"),
         )
 
     finally:
@@ -619,6 +471,162 @@ def corpus_profile_chart(profile_rows):
     )
 
 
+SHORT_CATEGORY = {
+    "retained tracked-revision evidence": "Tracked revisions",
+    "multiple-RSID-pattern evidence": "Multiple RSIDs",
+    "metadata-only evidence": "Metadata only",
+    "no selected edit artifact observed": "None observed",
+}
+
+
+def profile_heatmap_chart(profile_rows):
+    """
+    Heatmap "evidence fingerprint": one row per sample, one column
+    per evidence dimension, colour = 0-3 strength. Samples with the
+    same history should show the same fingerprint.
+    """
+
+    long_dataframe = pd.DataFrame(profile_rows).melt(
+        id_vars="sample",
+        var_name="Dimension",
+        value_name="Strength",
+    )
+
+    base = alt.Chart(long_dataframe).encode(
+        x=alt.X("Dimension:N", title=None, sort=None,
+                axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("sample:N", title=None, sort=None),
+    )
+
+    cells = base.mark_rect().encode(
+        color=alt.Color(
+            "Strength:Q",
+            scale=alt.Scale(domain=[0, 3], scheme="blues"),
+            legend=alt.Legend(title="0 none - 3 extensive"),
+        ),
+        tooltip=["sample", "Dimension", "Strength"],
+    )
+
+    labels = base.mark_text(fontSize=13).encode(
+        text="Strength:Q",
+        color=alt.condition(
+            alt.datum.Strength >= 2,
+            alt.value("white"),
+            alt.value("black"),
+        ),
+    )
+
+    return (cells + labels).properties(
+        height=max(120, 34 * len(profile_rows))
+    )
+
+
+def presence_heatmap_chart(presence_rows):
+    """
+    RQ1 heatmap: artifact counts present in each final DOCX.
+    """
+
+    long_dataframe = pd.DataFrame(presence_rows).melt(
+        id_vars="sample",
+        var_name="Artifact",
+        value_name="Count",
+    )
+
+    base = alt.Chart(long_dataframe).encode(
+        x=alt.X("Artifact:N", title=None, sort=None,
+                axis=alt.Axis(labelAngle=-30)),
+        y=alt.Y("sample:N", title=None, sort=None),
+    )
+
+    cells = base.mark_rect().encode(
+        color=alt.Color(
+            "Count:Q",
+            scale=alt.Scale(scheme="greens"),
+        ),
+        tooltip=["sample", "Artifact", "Count"],
+    )
+
+    labels = base.mark_text(fontSize=12).encode(text="Count:Q")
+
+    return (cells + labels).properties(
+        height=max(120, 34 * len(presence_rows))
+    )
+
+
+def survival_heatmap_chart(survival_rows):
+    """
+    RQ3 heatmap: share of each parent artifact group still present
+    after the transformation (red = lost, green = survived).
+    """
+
+    dataframe = pd.DataFrame(survival_rows).copy()
+
+    dataframe["Transformation"] = (
+        dataframe["transformation"] + "  (" + dataframe["sample"] + ")"
+    )
+
+    dataframe["Label"] = dataframe["survival_rate"].apply(
+        lambda v: "-" if pd.isna(v) else f"{v:.0%}"
+    )
+
+    base = alt.Chart(dataframe).encode(
+        x=alt.X("artifact:N", title=None, sort=None,
+                axis=alt.Axis(labelAngle=-30)),
+        y=alt.Y("Transformation:N", title=None, sort=None),
+    )
+
+    cells = base.mark_rect().encode(
+        color=alt.Color(
+            "survival_rate:Q",
+            scale=alt.Scale(domain=[0, 1], scheme="redyellowgreen"),
+            legend=alt.Legend(title="survival", format="%"),
+        ),
+        tooltip=[
+            "Transformation", "artifact", "parent_count",
+            "child_count", "retained", "introduced",
+            alt.Tooltip("survival_rate:Q", format=".0%"),
+        ],
+    )
+
+    labels = base.mark_text(fontSize=12).encode(text="Label:N")
+
+    return (cells + labels).properties(
+        height=max(120, 36 * dataframe["Transformation"].nunique())
+    )
+
+
+def confusion_heatmap_chart(title, confusion):
+    """Confusion matrix (rows = ground truth, columns = predicted)."""
+
+    labels = [SHORT_CATEGORY.get(c, c) for c in confusion["labels"]]
+
+    rows = []
+
+    for i, truth in enumerate(labels):
+        for j, predicted in enumerate(labels):
+            rows.append({
+                "Ground truth": truth,
+                "Predicted": predicted,
+                "Samples": confusion["matrix"][i][j],
+            })
+
+    base = alt.Chart(pd.DataFrame(rows)).encode(
+        x=alt.X("Predicted:N", sort=labels,
+                axis=alt.Axis(labelAngle=-30)),
+        y=alt.Y("Ground truth:N", sort=labels),
+    )
+
+    cells = base.mark_rect().encode(
+        color=alt.Color("Samples:Q", scale=alt.Scale(scheme="purples"),
+                        legend=None),
+        tooltip=["Ground truth", "Predicted", "Samples"],
+    )
+
+    text = base.mark_text(fontSize=13).encode(text="Samples:Q")
+
+    return (cells + text).properties(title=title, height=220)
+
+
 # ---------------------------------------------------------
 # Dashboard heading
 # ---------------------------------------------------------
@@ -643,6 +651,30 @@ st.info(
 # ---------------------------------------------------------
 # Analysis mode
 # ---------------------------------------------------------
+
+st.sidebar.header("Analysis settings")
+
+st.sidebar.selectbox(
+    "RSID counting rule",
+    RSID_SCOPES,
+    index=0,
+    key="rsid_scope",
+    help=(
+        "document: count RSIDs referenced in word/document.xml "
+        "(default).\n\n"
+        "content: as document, but ignore RSIDs on section "
+        "properties (w:sectPr), which templates copy into new "
+        "files.\n\n"
+        "all: also count RSIDs that appear only in the settings "
+        "table (prototype rule)."
+    ),
+)
+
+st.sidebar.caption(
+    "The rule changes which RSIDs count towards the "
+    "multiple-RSID category and the RSID score. The corpus view "
+    "always reports all three rules side by side."
+)
 
 analysis_mode = st.radio(
     "Analysis mode",
@@ -993,7 +1025,19 @@ if analysis_mode == "Corpus Comparison":
 
     st.altair_chart(
         corpus_profile_chart(profile_rows),
-        use_container_width=True,
+        width="stretch",
+    )
+
+    st.markdown(
+        "**Evidence fingerprint.** The same scores as a heatmap: "
+        "read each row as one document's evidence fingerprint. "
+        "Documents with similar histories should look alike, and "
+        "a document can be dark in several columns at once."
+    )
+
+    st.altair_chart(
+        profile_heatmap_chart(profile_rows),
+        width="stretch",
     )
 
     st.dataframe(
@@ -1005,6 +1049,25 @@ if analysis_mode == "Corpus Comparison":
     # -----------------------------------------------------
     # Artifact matrix
     # -----------------------------------------------------
+
+    st.subheader(
+        "Artifact Presence Heatmap (RQ1)"
+    )
+
+    st.markdown(
+        "How many of each selected artifact survive in each final "
+        "DOCX. Counts are shown, not a yes/no verdict."
+    )
+
+    corpus_results = evaluate_corpus(
+        analysed_samples,
+        ground_truth_records,
+    )
+
+    st.altair_chart(
+        presence_heatmap_chart(corpus_results["presence"]),
+        width="stretch",
+    )
 
     st.subheader(
         "Artifact Detection Matrix"
@@ -1149,31 +1212,6 @@ if analysis_mode == "Corpus Comparison":
     else:
 
         # -------------------------------------------------
-        # Find baseline evidence
-        # -------------------------------------------------
-
-        baseline_evidence = None
-
-        for sample_name, ground_truth in (
-            ground_truth_records.items()
-        ):
-
-            if (
-                ground_truth.get(
-                    "sample_id"
-                )
-                == "01_baseline"
-            ):
-
-                baseline_evidence = (
-                    analysed_samples.get(
-                        sample_name
-                    )
-                )
-
-                break
-
-        # -------------------------------------------------
         # Evaluate all matched samples
         # -------------------------------------------------
 
@@ -1199,7 +1237,12 @@ if analysis_mode == "Corpus Comparison":
                 .evaluate_sample(
                     ground_truth,
                     evidence,
-                    baseline_evidence
+                    resolve_baseline(
+                        sample_name,
+                        ground_truth,
+                        analysed_samples,
+                        ground_truth_records,
+                    )
                 )
             )
 
@@ -1461,6 +1504,130 @@ if analysis_mode == "Corpus Comparison":
                 "observed in the final DOCX. RSID and metadata "
                 "survival are not computed because the current "
                 "ground truth states no expectations for them."
+            )
+
+        # -------------------------------------------------
+        # RSID rule ablation and confusion matrices (RQ2)
+        # -------------------------------------------------
+
+        if corpus_results["labelled_samples"]:
+
+            st.subheader(
+                "Classification by Rule (RQ2 Ablation)"
+            )
+
+            st.markdown(
+                "Accuracy of the rule-based correlation under each "
+                "RSID counting rule, against the metadata-only "
+                "baseline, on the same labelled samples. *Template "
+                "FP* counts negative-control samples (independent "
+                "documents from the same template) that a rule "
+                "wrongly placed in the multiple-RSID category."
+            )
+
+            ablation_rows = []
+
+            for rule, values in corpus_results["ablation"].items():
+
+                ablation_rows.append({
+                    "Rule": rule,
+                    "Accuracy": format_metric(values.get("accuracy")),
+                    "Accuracy value": values.get("accuracy") or 0,
+                    "Template FP": (
+                        f"{values['negative_control_rsid_false_positives']}"
+                        f" / {values['negative_controls']}"
+                        if "negative_controls" in values else "n/a"
+                    ),
+                })
+
+            ablation_dataframe = pd.DataFrame(ablation_rows)
+
+            st.altair_chart(
+                alt.Chart(ablation_dataframe).mark_bar().encode(
+                    x=alt.X("Rule:N", sort=None, title=None,
+                            axis=alt.Axis(labelAngle=0)),
+                    y=alt.Y("Accuracy value:Q",
+                            scale=alt.Scale(domain=[0, 1]),
+                            title="Accuracy"),
+                    color=alt.condition(
+                        alt.datum.Rule == "metadata-only baseline",
+                        alt.value("#BBBBBB"),
+                        alt.value("#4C72B0"),
+                    ),
+                    tooltip=["Rule", "Accuracy", "Template FP"],
+                ).properties(height=220),
+                width="stretch",
+            )
+
+            st.dataframe(
+                ablation_dataframe.drop(columns=["Accuracy value"]),
+                width="stretch",
+                hide_index=True,
+            )
+
+            st.subheader("Confusion Matrices")
+
+            st.caption(
+                "Rows are the category the controlled history "
+                "justifies; columns are what the tool reported. "
+                "Everything on the diagonal is correct."
+            )
+
+            confusion_items = list(
+                corpus_results["confusion"].items()
+            )
+
+            for start in range(0, len(confusion_items), 2):
+
+                columns = st.columns(2)
+
+                for column, (title, confusion) in zip(
+                    columns, confusion_items[start:start + 2]
+                ):
+                    column.altair_chart(
+                        confusion_heatmap_chart(title, confusion),
+                        width="stretch",
+                    )
+
+        # -------------------------------------------------
+        # Artifact survival after transformations (RQ3)
+        # -------------------------------------------------
+
+        st.subheader(
+            "Artifact Survival After Transformations (RQ3)"
+        )
+
+        if corpus_results["survival"]:
+
+            st.markdown(
+                "Each row compares a sample with the parent it was "
+                "derived from (`derived_from` in its ground truth). "
+                "A cell shows what share of the parent's artifacts "
+                "of that type are still present, unchanged, after "
+                "the transformation. Green = survived, red = lost, "
+                "'-' = the parent had none to lose."
+            )
+
+            st.altair_chart(
+                survival_heatmap_chart(corpus_results["survival"]),
+                width="stretch",
+            )
+
+            with st.expander("Survival table"):
+
+                st.dataframe(
+                    pd.DataFrame(corpus_results["survival"]),
+                    width="stretch",
+                    hide_index=True,
+                )
+
+        else:
+
+            st.info(
+                "No uploaded sample names a parent (derived_from) "
+                "that was also uploaded, so survival cannot be "
+                "computed. Upload each transformed sample together "
+                "with its parent."
             )
 
         # -------------------------------------------------
@@ -2159,7 +2326,12 @@ with revision_tab:
     st.markdown(
         """
         This section displays retained tracked-change
-        structures found as `w:ins` and `w:del`.
+        structures: content insertions and deletions
+        (`w:ins`, `w:del`), plus the other markers Word writes
+        when Track Changes is on: paragraph-mark revisions
+        (`w:ins`/`w:del` inside `w:rPr`), moves (`w:moveFrom`,
+        `w:moveTo`) and formatting changes (`w:rPrChange`,
+        `w:pPrChange`, ...).
 
         Their presence provides stronger direct evidence
         of retained revision markup than RSID counts alone,
@@ -2201,6 +2373,12 @@ with revision_tab:
                 "Type":
                     revision["type"],
 
+                "Element":
+                    revision.get("element"),
+
+                "Revision ID":
+                    revision.get("revision_id"),
+
                 "Declared Author":
                     revision["author"],
 
@@ -2211,8 +2389,23 @@ with revision_tab:
                     revision["text"],
             })
 
-        revision_metric_1, revision_metric_2 = (
-            st.columns(2)
+        other_count = (
+            len(evidence["revisions"])
+            - insertion_count
+            - deletion_count
+        )
+
+        revision_metric_1, revision_metric_2, revision_metric_3 = (
+            st.columns(3)
+        )
+
+        revision_metric_3.metric(
+            "Other tracked markers",
+            other_count,
+            help=(
+                "Paragraph-mark, table-row, move and formatting "
+                "revisions. Not counted as insertions/deletions."
+            ),
         )
 
         revision_metric_1.metric(
@@ -2233,16 +2426,18 @@ with revision_tab:
             hide_index=True,
         )
 
+        type_counts = Counter(
+            revision["type"]
+            for revision in evidence["revisions"]
+        )
+
         revision_chart = pd.DataFrame(
             {
                 "Revision Type": [
-                    "Insertion",
-                    "Deletion",
+                    name.replace("_", " ")
+                    for name in type_counts
                 ],
-                "Observed": [
-                    insertion_count,
-                    deletion_count,
-                ],
+                "Observed": list(type_counts.values()),
             }
         )
 
@@ -2381,7 +2576,7 @@ with interpretation_tab:
 
     st.altair_chart(
         single_profile_chart(profile_dataframe),
-        use_container_width=True,
+        width="stretch",
     )
 
     st.caption(
@@ -2433,6 +2628,37 @@ with interpretation_tab:
         st.write(
             f"• {item}"
         )
+
+    st.subheader(
+        "Supporting Evidence Trace"
+    )
+
+    st.caption(
+        "Every item behind the pattern above, located by OOXML "
+        "part, XML element and attribute, so the finding can be "
+        f"checked by hand. RSID rule in use: "
+        f"{classification.get('rsid_scope', 'document')}."
+    )
+
+    if classification.get("evidence"):
+
+        st.dataframe(
+            pd.DataFrame(classification["evidence"]).rename(
+                columns={
+                    "evidence_group": "Evidence group",
+                    "part": "Part",
+                    "element": "Element",
+                    "attribute": "Attribute",
+                    "value": "Value",
+                }
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+
+    else:
+
+        st.info("No supporting artifact was observed.")
 
     st.subheader(
         "Interpretive Limitations"

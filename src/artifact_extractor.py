@@ -1,6 +1,45 @@
 from xml_parser import NAMESPACES
 
 
+# RSID attributes examined in word/document.xml.
+#   rsidR        paragraph / run / section added
+#   rsidRDefault default RSID for runs in a paragraph (Word writes
+#                this on almost every paragraph, so omitting it
+#                under-reports RSID evidence on Word-native files)
+#   rsidRPr      run properties last modified
+#   rsidDel      paragraph mark / run deleted
+#   rsidP        paragraph properties last modified
+#   rsidSect     section properties
+#   rsidTr       table row properties
+RSID_ATTRIBUTE_NAMES = frozenset({
+    "rsidR",
+    "rsidRDefault",
+    "rsidRPr",
+    "rsidDel",
+    "rsidP",
+    "rsidSect",
+    "rsidTr",
+})
+
+# Tracked formatting-change elements (ECMA-376 Part 1, 17.13.5).
+FORMATTING_CHANGE_ELEMENTS = (
+    "rPrChange",
+    "pPrChange",
+    "sectPrChange",
+    "tblPrChange",
+    "trPrChange",
+    "tcPrChange",
+)
+
+# Revision types that represent retained *content* changes.
+CONTENT_REVISION_TYPES = frozenset({
+    "insertion",
+    "deletion",
+    "move_from",
+    "move_to",
+})
+
+
 class ArtifactExtractor:
 
     def extract_rsid_root(self, settings_root):
@@ -57,13 +96,7 @@ class ArtifactExtractor:
             list[dict]: RSID evidence records.
         """
 
-        rsid_attribute_names = {
-            "rsidR",
-            "rsidRPr",
-            "rsidDel",
-            "rsidP",
-            "rsidSect",
-        }
+        rsid_attribute_names = RSID_ATTRIBUTE_NAMES
 
         results = []
 
@@ -85,60 +118,184 @@ class ArtifactExtractor:
                         "element": element.tag,
                         "attribute": local_name,
                         "value": value,
+                        "part": "word/document.xml",
                     })
 
         return results
 
     def extract_revisions(self, document_root):
         """
-        Extract retained tracked revisions from word/document.xml.
+        Extract retained tracked-revision markup from
+        word/document.xml.
 
-        Looks for:
-            w:ins
-            w:del
+        Word stores tracked changes in several structures, not
+        only as run-level w:ins / w:del. Each record is given a
+        precise type so that counts stay meaningful:
+
+            insertion / deletion
+                Content revisions: w:ins / w:del that wrap runs
+                of text. These are what a reader would call a
+                "tracked insertion" or "tracked deletion", and
+                they are the only types the ground truth counts
+                as retained insertions / deletions.
+
+            paragraph_mark_insertion / paragraph_mark_deletion
+                w:ins / w:del inside w:pPr/w:rPr. Word writes one
+                every time a paragraph break is inserted or
+                removed with Track Changes on. They carry no text,
+                so counting them as insertions would inflate the
+                insertion count on Word-native files.
+
+            table_row_insertion / table_row_deletion
+                w:ins / w:del inside w:trPr.
+
+            move_from / move_to
+                w:moveFrom / w:moveTo (tracked moves).
+
+            formatting_change
+                w:rPrChange, w:pPrChange, w:sectPrChange,
+                w:tblPrChange, w:trPrChange, w:tcPrChange
+                (tracked formatting changes).
+
+        Every record also carries traceability fields (part,
+        element, revision_id) so an investigator can locate the
+        exact XML that produced it.
 
         Returns:
             list[dict]: Revision evidence records containing
-            type, author, date, and text where available.
+            type, author, date, text, part, element, revision_id.
         """
+
+        parent_map = {
+            child: parent
+            for parent in document_root.iter()
+            for child in parent
+        }
 
         revisions = []
 
-        revision_types = {
-            "insertion": ".//w:ins",
-            "deletion": ".//w:del",
-        }
+        # Content insertions first, then content deletions, then
+        # every other retained marker. The ordering is kept
+        # stable so existing reports and tests remain comparable.
+        ordered_groups = [
+            ("ins", "insertion"),
+            ("del", "deletion"),
+        ]
 
-        word_namespace = NAMESPACES["w"]
+        deferred = []
 
-        author_attribute = f"{{{word_namespace}}}author"
-        date_attribute = f"{{{word_namespace}}}date"
+        for local_name, base_type in ordered_groups:
 
-        for revision_type, path in revision_types.items():
+            for element in document_root.iter(
+                self._w(local_name)
+            ):
 
-            revision_elements = document_root.findall(
-                path,
-                NAMESPACES
-            )
-
-            for element in revision_elements:
-
-                author = element.get(author_attribute)
-                date = element.get(date_attribute)
-
-                text = self._extract_revision_text(
-                    element,
-                    revision_type
+                context = self._local_name(
+                    parent_map.get(element)
                 )
 
-                revisions.append({
-                    "type": revision_type,
-                    "author": author,
-                    "date": date,
-                    "text": text,
-                })
+                if context == "rPr":
+                    deferred.append(
+                        self._revision_record(
+                            element,
+                            f"paragraph_mark_{base_type}",
+                            local_name,
+                            text=None,
+                        )
+                    )
+                    continue
 
-        return revisions
+                if context == "trPr":
+                    deferred.append(
+                        self._revision_record(
+                            element,
+                            f"table_row_{base_type}",
+                            local_name,
+                            text=None,
+                        )
+                    )
+                    continue
+
+                revisions.append(
+                    self._revision_record(
+                        element,
+                        base_type,
+                        local_name,
+                        text=self._extract_revision_text(
+                            element,
+                            base_type,
+                        ),
+                    )
+                )
+
+        for local_name, revision_type in (
+            ("moveFrom", "move_from"),
+            ("moveTo", "move_to"),
+        ):
+
+            for element in document_root.iter(
+                self._w(local_name)
+            ):
+                deferred.append(
+                    self._revision_record(
+                        element,
+                        revision_type,
+                        local_name,
+                        text=self._extract_revision_text(
+                            element,
+                            revision_type,
+                        ),
+                    )
+                )
+
+        for local_name in FORMATTING_CHANGE_ELEMENTS:
+
+            for element in document_root.iter(
+                self._w(local_name)
+            ):
+                deferred.append(
+                    self._revision_record(
+                        element,
+                        "formatting_change",
+                        local_name,
+                        text=None,
+                    )
+                )
+
+        return revisions + deferred
+
+    def _revision_record(
+        self,
+        element,
+        revision_type,
+        local_name,
+        text,
+    ):
+
+        return {
+            "type": revision_type,
+            "author": element.get(self._w("author")),
+            "date": element.get(self._w("date")),
+            "text": text,
+            "part": "word/document.xml",
+            "element": f"w:{local_name}",
+            "revision_id": element.get(self._w("id")),
+        }
+
+    def _w(self, local_name):
+        return f"{{{NAMESPACES['w']}}}{local_name}"
+
+    def _local_name(self, element):
+
+        if element is None:
+            return None
+
+        tag = element.tag
+
+        if "}" in tag:
+            return tag.split("}", 1)[1]
+
+        return tag
 
     def _extract_revision_text(
         self,
@@ -148,14 +305,15 @@ class ArtifactExtractor:
         """
         Extract text associated with a retained revision.
 
-        Insertions normally use w:t.
-        Deletions normally use w:delText.
+        Insertions and move destinations normally use w:t.
+        Deletions normally use w:delText. Move sources may use
+        either, depending on the producing application.
 
         Returns:
             str | None
         """
 
-        if revision_type == "insertion":
+        if revision_type in ("insertion", "move_to"):
             text_elements = revision_element.findall(
                 ".//w:t",
                 NAMESPACES
@@ -165,6 +323,14 @@ class ArtifactExtractor:
             text_elements = revision_element.findall(
                 ".//w:delText",
                 NAMESPACES
+            )
+
+        elif revision_type == "move_from":
+            text_elements = (
+                revision_element.findall(".//w:t", NAMESPACES)
+                + revision_element.findall(
+                    ".//w:delText", NAMESPACES
+                )
             )
 
         else:

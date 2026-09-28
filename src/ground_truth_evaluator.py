@@ -313,6 +313,38 @@ class GroundTruthEvaluator:
             )
 
         # -------------------------------------------------
+        # Individual metadata field presence (used by the
+        # metadata-cleaning samples, where Word's Document
+        # Inspector is expected to blank author fields)
+        # -------------------------------------------------
+
+        for key, field, label in (
+            ("creator_present", "creator", "Creator present"),
+            (
+                "last_modified_by_present",
+                "last_modified_by",
+                "Last modifier present",
+            ),
+        ):
+
+            if key in expected:
+
+                observed_present = bool(
+                    (
+                        evidence.get("core_properties") or {}
+                    ).get(field)
+                )
+
+                results.append(
+                    self._result(
+                        label,
+                        expected[key],
+                        observed_present,
+                        expected[key] == observed_present
+                    )
+                )
+
+        # -------------------------------------------------
         # RSID expectation
         # -------------------------------------------------
 
