@@ -107,6 +107,28 @@ class ResearchMetrics:
         }
 
     # -----------------------------------------------------
+    # Confusion matrix
+    # -----------------------------------------------------
+
+    def confusion_matrix(self, y_true, y_pred, labels=CATEGORIES):
+        """
+        Rows are the ground-truth category, columns the predicted
+        category: matrix[i][j] = number of samples whose true
+        category is labels[i] and predicted category labels[j].
+        """
+
+        index = {label: i for i, label in enumerate(labels)}
+
+        matrix = [[0 for _ in labels] for _ in labels]
+
+        for truth, prediction in zip(y_true, y_pred):
+
+            if truth in index and prediction in index:
+                matrix[index[truth]][index[prediction]] += 1
+
+        return {"labels": list(labels), "matrix": matrix}
+
+    # -----------------------------------------------------
     # Binary artifact detection (present / absent)
     # -----------------------------------------------------
 

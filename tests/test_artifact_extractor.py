@@ -524,6 +524,91 @@ class TestArtifactExtractor(unittest.TestCase):
     # Core property tests
     # -----------------------------------------------------
 
+    # -----------------------------------------------------
+    # Word-native revision structures
+    # -----------------------------------------------------
+
+    WORD_NATIVE_XML = b"""
+    <w:document
+        xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:body>
+        <w:p w:rsidR="00AA0001" w:rsidRDefault="00AA0002">
+          <w:pPr>
+            <w:rPr>
+              <w:ins w:id="10" w:author="Editor" w:date="2026-09-28T10:00:00Z"/>
+            </w:rPr>
+          </w:pPr>
+          <w:ins w:id="11" w:author="Editor" w:date="2026-09-28T10:01:00Z">
+            <w:r><w:t>red</w:t></w:r>
+          </w:ins>
+          <w:del w:id="12" w:author="Editor" w:date="2026-09-28T10:01:00Z">
+            <w:r><w:delText>brown</w:delText></w:r>
+          </w:del>
+          <w:r>
+            <w:rPr>
+              <w:b/>
+              <w:rPrChange w:id="13" w:author="Editor" w:date="2026-09-28T10:02:00Z">
+                <w:rPr/>
+              </w:rPrChange>
+            </w:rPr>
+            <w:t>fox</w:t>
+          </w:r>
+          <w:moveTo w:id="14" w:author="Editor" w:date="2026-09-28T10:03:00Z">
+            <w:r><w:t>moved</w:t></w:r>
+          </w:moveTo>
+        </w:p>
+      </w:body>
+    </w:document>
+    """
+
+    def test_paragraph_mark_revision_not_counted_as_insertion(self):
+
+        root = self.parser.parse(self.WORD_NATIVE_XML)
+        result = self.extractor.extract_revisions(root)
+
+        types = [r["type"] for r in result]
+
+        self.assertEqual(types.count("insertion"), 1)
+        self.assertEqual(types.count("deletion"), 1)
+        self.assertEqual(types.count("paragraph_mark_insertion"), 1)
+
+    def test_formatting_and_move_revisions_extracted(self):
+
+        root = self.parser.parse(self.WORD_NATIVE_XML)
+        result = self.extractor.extract_revisions(root)
+
+        by_type = {r["type"]: r for r in result}
+
+        self.assertIn("formatting_change", by_type)
+        self.assertEqual(by_type["move_to"]["text"], "moved")
+        self.assertEqual(
+            by_type["formatting_change"]["element"], "w:rPrChange"
+        )
+
+    def test_revision_records_are_traceable(self):
+
+        root = self.parser.parse(self.WORD_NATIVE_XML)
+        result = self.extractor.extract_revisions(root)
+
+        insertion = next(r for r in result if r["type"] == "insertion")
+
+        self.assertEqual(insertion["part"], "word/document.xml")
+        self.assertEqual(insertion["element"], "w:ins")
+        self.assertEqual(insertion["revision_id"], "11")
+        self.assertEqual(insertion["text"], "red")
+
+    def test_rsid_r_default_is_extracted(self):
+
+        root = self.parser.parse(self.WORD_NATIVE_XML)
+        result = self.extractor.extract_document_rsids(root)
+
+        attributes = {item["attribute"] for item in result}
+
+        self.assertIn("rsidRDefault", attributes)
+        self.assertTrue(
+            all(item["part"] == "word/document.xml" for item in result)
+        )
+
     def test_extract_core_properties(self):
 
         xml = b"""

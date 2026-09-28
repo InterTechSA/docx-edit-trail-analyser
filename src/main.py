@@ -1,343 +1,144 @@
+"""
+Command-line evidence view for one DOCX file.
+
+Usage (from the project root):
+
+    python src/main.py path/to/file.docx
+    python src/main.py path/to/file.docx --rsid-scope content
+"""
+
+import argparse
 import sys
 from pathlib import Path
 
-from package_reader import DocxPackageReader
-from xml_parser import TargetXmlParser
-from artifact_extractor import ArtifactExtractor
-from correlation_engine import CorrelationEngine
+from correlation_engine import RSID_SCOPES
+from evidence_pipeline import analyse_docx
 
 
-def main():
+def local_name(tag):
 
-    print("DOCX Edit-Trail Analyser")
+    return tag.split("}", 1)[1] if "}" in tag else tag
+
+
+def section(title):
+
+    print()
+    print(title)
     print("-" * 40)
+
+
+def main(argv=None):
 
     project_root = Path(__file__).resolve().parent.parent
 
-    # -------------------------------------------------
-    # Select DOCX file
-    # -------------------------------------------------
-
-    if len(sys.argv) > 1:
-
-        file_path = Path(sys.argv[1])
-
-    else:
-
-        file_path = (
-            project_root
-            / "samples"
-            / "test.docx"
-        )
-
-    print(
-        f"Analysing: {file_path}"
+    parser = argparse.ArgumentParser(
+        description="DOCX Edit-Trail Analyser (command line)"
     )
+    parser.add_argument(
+        "file",
+        nargs="?",
+        default=str(project_root / "samples" / "test.docx"),
+    )
+    parser.add_argument(
+        "--rsid-scope", default="document", choices=RSID_SCOPES
+    )
+    args = parser.parse_args(argv)
+
+    print("DOCX Edit-Trail Analyser")
+    print("-" * 40)
+    print(f"Analysing: {args.file}")
 
     try:
-
-        reader = DocxPackageReader(file_path)
-
-        parts = reader.read_selected_parts()
-
-        parser = TargetXmlParser()
-
-        extractor = ArtifactExtractor()
-
-        correlation_engine = CorrelationEngine()
-
-        parsed_parts = {}
-
-        # -------------------------------------------------
-        # Parse selected XML parts
-        # -------------------------------------------------
-
-        for part_name, content in parts.items():
-
-            if content is None:
-
-                print(
-                    f"[MISSING] {part_name}"
-                )
-
-                continue
-
-            root = parser.parse(content)
-
-            parsed_parts[part_name] = root
-
-            print(
-                f"[PARSED] {part_name}"
-            )
-
-        # -------------------------------------------------
-        # Prepare evidence containers
-        # -------------------------------------------------
-
-        rsid_root = None
-
-        rsid_table = []
-
-        document_rsids = []
-
-        revisions = []
-
-        core_properties = {}
-
-        app_properties = {}
-
-        # -------------------------------------------------
-        # RSID evidence
-        # -------------------------------------------------
-
-        settings_root = parsed_parts.get(
-            "word/settings.xml"
-        )
-
-        if settings_root is not None:
-
-            rsid_root = extractor.extract_rsid_root(
-                settings_root
-            )
-
-            rsid_table = extractor.extract_rsid_table(
-                settings_root
-            )
-
-            print()
-
-            print("RSID Evidence")
-
-            print("-" * 40)
-
-            print(
-                f"rsidRoot: {rsid_root}"
-            )
-
-            print(
-                f"RSID table entries: "
-                f"{len(rsid_table)}"
-            )
-
-            for rsid in rsid_table:
-
-                print(
-                    f"  - {rsid}"
-                )
-
-        # -------------------------------------------------
-        # Document evidence
-        # -------------------------------------------------
-
-        document_root = parsed_parts.get(
-            "word/document.xml"
-        )
-
-        if document_root is not None:
-
-            document_rsids = (
-                extractor.extract_document_rsids(
-                    document_root
-                )
-            )
-
-            print()
-
-            print("Document RSID Attributes")
-
-            print("-" * 40)
-
-            print(
-                f"RSID attributes found: "
-                f"{len(document_rsids)}"
-            )
-
-            for item in document_rsids:
-
-                print(
-                    f"{item['attribute']} = "
-                    f"{item['value']} "
-                    f"on {item['element']}"
-                )
-
-            # ---------------------------------------------
-            # Retained revisions
-            # ---------------------------------------------
-
-            revisions = (
-                extractor.extract_revisions(
-                    document_root
-                )
-            )
-
-            print()
-
-            print("Retained Revision Evidence")
-
-            print("-" * 40)
-
-            print(
-                f"Revisions found: "
-                f"{len(revisions)}"
-            )
-
-            for revision in revisions:
-
-                print(
-                    f"Type: "
-                    f"{revision['type']}"
-                )
-
-                print(
-                    f"Author: "
-                    f"{revision['author']}"
-                )
-
-                print(
-                    f"Date: "
-                    f"{revision['date']}"
-                )
-
-                print(
-                    f"Text: "
-                    f"{revision['text']}"
-                )
-
-                print(
-                    "-" * 20
-                )
-
-        # -------------------------------------------------
-        # Core document properties
-        # -------------------------------------------------
-
-        core_root = parsed_parts.get(
-            "docProps/core.xml"
-        )
-
-        if core_root is not None:
-
-            core_properties = (
-                extractor.extract_core_properties(
-                    core_root
-                )
-            )
-
-            print()
-
-            print("Core Document Properties")
-
-            print("-" * 40)
-
-            print(
-                f"Creator: "
-                f"{core_properties['creator']}"
-            )
-
-            print(
-                f"Last modified by: "
-                f"{core_properties['last_modified_by']}"
-            )
-
-            print(
-                f"Created: "
-                f"{core_properties['created']}"
-            )
-
-            print(
-                f"Modified: "
-                f"{core_properties['modified']}"
-            )
-
-        # -------------------------------------------------
-        # Application properties
-        # -------------------------------------------------
-
-        app_root = parsed_parts.get(
-            "docProps/app.xml"
-        )
-
-        if app_root is not None:
-
-            app_properties = (
-                extractor.extract_application_properties(
-                    app_root
-                )
-            )
-
-            print()
-
-            print("Application Properties")
-
-            print("-" * 40)
-
-            print(
-                f"Application: "
-                f"{app_properties['application']}"
-            )
-
-            print(
-                f"Application version: "
-                f"{app_properties['app_version']}"
-            )
-
-        # -------------------------------------------------
-        # Correlation engine
-        # -------------------------------------------------
-
-        classification = (
-            correlation_engine.classify(
-                rsid_root=rsid_root,
-                rsid_table=rsid_table,
-                document_rsids=document_rsids,
-                revisions=revisions,
-                core_properties=core_properties,
-                app_properties=app_properties,
-            )
-        )
-
-        print()
-
-        print("Evidence Classification")
-
-        print("-" * 40)
-
-        print(
-            f"Category: "
-            f"{classification['category']}"
-        )
-
-        print()
-
-        print("Basis:")
-
-        for item in classification["basis"]:
-
-            print(
-                f"  - {item}"
-            )
-
-        print()
-
-        print("Interpretive Limitations:")
-
-        for item in classification["limitations"]:
-
-            print(
-                f"  - {item}"
-            )
-
-        return 0
-
+        evidence = analyse_docx(args.file, args.rsid_scope)
     except (FileNotFoundError, ValueError) as error:
+        print(f"[ERROR] {error}")
+        return 1
 
+    for part, content in evidence["parts"].items():
+        print(f"[{'PARSED' if content is not None else 'MISSING'}] {part}")
+
+    section("RSID Evidence (word/settings.xml)")
+    print(f"rsidRoot: {evidence['rsid_root']}")
+    print(f"RSID table entries: {len(evidence['rsid_table'])}")
+    for rsid in evidence["rsid_table"]:
+        print(f"  - {rsid}")
+
+    section("Document RSID Attributes (word/document.xml)")
+    print(f"RSID attributes found: {len(evidence['document_rsids'])}")
+    print(f"Distinct RSIDs referenced: {len(evidence['referenced_rsids'])}")
+    for item in evidence["document_rsids"]:
         print(
-            f"[ERROR] {error}"
+            f"  {item['attribute']} = {item['value']} "
+            f"on w:{local_name(item['element'])}"
         )
 
-        return 1
+    section("Retained Revision Evidence")
+    print(f"Revision markers found: {len(evidence['revisions'])}")
+    for revision in evidence["revisions"]:
+        print(
+            f"  {revision['type']:<26} {revision['element']:<12} "
+            f"id={revision['revision_id']} "
+            f"author={revision['author']} date={revision['date']} "
+            f"text={revision['text']!r}"
+        )
+
+    section("Core Document Properties (docProps/core.xml)")
+    core = evidence["core_properties"]
+    print(f"Creator: {core.get('creator')}")
+    print(f"Last modified by: {core.get('last_modified_by')}")
+    print(f"Created: {core.get('created')}")
+    print(f"Modified: {core.get('modified')}")
+
+    section("Application Properties (docProps/app.xml)")
+    app = evidence["app_properties"]
+    print(f"Application: {app.get('application')}")
+    print(f"Application version: {app.get('app_version')}")
+
+    section("Evidence Profile (0 none - 3 extensive)")
+    names = {
+        "revision_evidence": "Retained revisions",
+        "rsid_evidence": "RSID pattern",
+        "metadata_evidence": "Context metadata",
+    }
+    for key, name in names.items():
+        dimension = evidence["evidence_profile"][key]
+        bar = "#" * dimension["score"] + "." * (3 - dimension["score"])
+        print(
+            f"  {name:<20} [{bar}] {dimension['score']} "
+            f"{dimension['label']}"
+        )
+        print(f"      {dimension['basis']}")
+
+    classification = evidence["classification"]
+
+    section(
+        f"Strongest Individual Pattern (RSID scope: "
+        f"{classification['rsid_scope']})"
+    )
+    print(f"Category: {classification['category']}")
+
+    print()
+    print("Basis:")
+    for item in classification["basis"]:
+        print(f"  - {item}")
+
+    print()
+    print("Supporting evidence (part / element / attribute = value):")
+    if not classification["evidence"]:
+        print("  (none)")
+    for item in classification["evidence"]:
+        print(
+            f"  {item['part']} / {item['element']} / "
+            f"{item['attribute']} = {item['value']}"
+        )
+
+    print()
+    print("Interpretive Limitations:")
+    for item in classification["limitations"]:
+        print(f"  - {item}")
+
+    return 0
 
 
 if __name__ == "__main__":
-
-    raise SystemExit(main())
+    sys.exit(main())

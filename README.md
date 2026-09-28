@@ -1,270 +1,236 @@
 # DOCX Edit-Trail Analyser
 
-A digital forensics tool for extracting and correlating selected edit-related artifacts retained within Microsoft Word DOCX files.
+A digital-forensics research tool that reads the hidden edit trail inside Microsoft Word `.docx` files. It extracts Revision Save Identifiers (RSIDs), retained tracked-change markup and document properties, then presents them as an **evidence profile** with every finding traceable to the XML that produced it.
 
-## Overview
+**Research category:** Digital Authenticity
+**Research theme:** Read hidden edit trails in digital files
 
-Microsoft Word DOCX files may retain edit-related artifacts that are not visible when viewing the document normally. These artifacts can provide useful evidence when investigating the editing history of a document.
+> The tool never reports "edited" / "not edited", "authentic" or "forged". It reports *what evidence is present, how strong it is on each dimension, where it came from, and what it cannot prove.*
 
-The DOCX Edit-Trail Analyser examines selected components of a DOCX file and presents potentially relevant artifacts in an auditable evidence view.
+---
 
-The tool focuses on three evidence groups:
+## Contents
 
-1. **RSID evidence**
+- [Why](#why)
+- [What it examines](#what-it-examines)
+- [How it works](#how-it-works)
+- [Evidence profile and categories](#evidence-profile-and-categories)
+- [Visualisations](#visualisations)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Controlled corpus and ground truth](#controlled-corpus-and-ground-truth)
+- [Evaluation and research questions](#evaluation-and-research-questions)
+- [Project structure](#project-structure)
+- [Testing](#testing)
+- [Scope and limitations](#scope-and-limitations)
+---
 
-   * Revision Save Identifiers (RSIDs)
-   * `rsidRoot`
-   * RSID table entries
-   * RSID attributes associated with relevant document elements
+## Why
 
-2. **Retained revision evidence**
+Investigators receive DOCX files that look complete and credible, but Word does not show how a file was created, copied, edited or cleaned. A DOCX is an OOXML package, a ZIP of XML parts, and some of those parts keep traces of editing that are invisible in Word. The difficulty is interpretation. RSIDs are not a chronological edit log; templates carry RSIDs into new files; accepting tracked changes erases their markup; metadata can be edited by anyone. The analyser therefore exposes the raw evidence and the limits of each inference rather than issuing a verdict.
 
-   * Insertions
-   * Deletions
-   * Revision author information where present
-   * Revision timestamps where present
+## What it examines
 
-3. **Context evidence**
+Four OOXML parts, three evidence groups:
 
-   * Document creator
-   * Last modifier
-   * Creation timestamp
-   * Modification timestamp
-   * Declared editing application
+| Evidence group | Artifacts | Part |
+| --- | --- | --- |
+| RSID evidence | `rsidRoot`, RSID table; `rsidR`, `rsidRDefault`, `rsidRPr`, `rsidDel`, `rsidP`, `rsidSect`, `rsidTr` attributes | `word/settings.xml`, `word/document.xml` |
+| Retained revision evidence | content insertions and deletions (`w:ins`, `w:del`), moves (`w:moveFrom`, `w:moveTo`), paragraph-mark and table-row revisions, formatting changes (`w:rPrChange`, `w:pPrChange`, ...), each with author, date, text and ID | `word/document.xml` |
+| Context evidence | creator, last modifier, created and modified timestamps, application and version | `docProps/core.xml`, `docProps/app.xml` |
 
-The extracted artifacts are correlated using predefined, explainable rules to assist a forensic investigator in identifying edit-related evidence that may require further investigation.
-
-## Research Context
-
-**Research Category:** Digital Authenticity
-
-**Research Theme:** Read hidden edit trails in digital files
-
-The project investigates how effectively artifacts retained within a final DOCX file can be used to identify and characterise aspects of its editing history.
-
-A DOCX file is an Office Open XML (OOXML) package containing document content, properties, relationships, settings, and other XML structures. Some of these structures may retain artifacts associated with document editing even when they are not visible through the normal Microsoft Word interface.
-
-The purpose of this tool is therefore not simply to extract metadata, but to correlate selected edit-related artifacts while clearly communicating the limitations of the resulting forensic inferences.
-
-## Evidence Categories
-
-Based on the selected artifacts observed, the analyser will place a document into one of the following evidence categories:
-
-* **Retained tracked-revision evidence**
-* **Multiple-RSID-pattern evidence**
-* **Metadata-only evidence**
-* **No selected edit artifact observed**
-
-Every classification must be supported by the underlying evidence that caused it.
-
-Where applicable, the analyser will expose information such as:
-
-* OOXML part name
-* XML element
-* XML attribute
-* Extracted value
-* Evidence type
-* Resulting evidence category
-
-A classification represents an investigative lead or description of the observed evidence. It does not establish the complete editing history of the document.
-
-## Scope
-
-The first version analyses one final `.docx` file.
-
-The following OOXML parts are examined:
+## How it works
 
 ```text
-word/document.xml
-word/settings.xml
-docProps/core.xml
-docProps/app.xml
+DOCX file
+  -> Package Reader       (package_reader.py)      opens the ZIP, reads the 4 parts only
+  -> Target XML Parser    (xml_parser.py)          namespace-aware parsing
+  -> Artifact Extractor   (artifact_extractor.py)  typed, traceable evidence records
+  -> Correlation Engine   (correlation_engine.py)  evidence profile + strongest pattern + trace
+  -> Evidence View        (dashboard.py / main.py)
 ```
 
-The project is intentionally restricted to selected artifacts contained within these parts.
+`evidence_pipeline.analyse_docx()` runs the four modules. The dashboard, the command-line tool and the batch evaluator all call it, so every interface produces identical evidence. The pipeline only ever sees the final DOCX; ground truth is compared afterwards by a separate evaluation layer.
 
-## Out of Scope
+## Evidence profile and categories
 
-The DOCX Edit-Trail Analyser does **not**:
+**Evidence profile (primary output).** Each dimension is scored independently from 0 to 3, so a document can register on several at once:
 
-* Determine whether a document is authentic or forged
-* Identify the person who edited a document
-* Reconstruct every historical edit
-* Treat RSIDs as a complete chronological edit log
-* Determine an exact number of editing sessions from RSIDs
-* Recover deleted files
-* Analyse disk images
-* Recover information that is no longer present in the DOCX package
-* Guarantee that metadata or revision artifacts have not been altered or removed
+| Dimension | 0 | 1 | 2 | 3 |
+| --- | --- | --- | --- | --- |
+| Retained revisions | none | only paragraph-mark or formatting markers | 1-4 content revisions | 5+ |
+| RSID pattern | none counted | 1 (one session) | 2-4 | 5+ |
+| Context metadata | no signal | 1 signal | 2 signals (cap) | n/a |
 
-The absence of a selected artifact should not automatically be interpreted as evidence that an event did not occur.
+The metadata signals are "modified is later than created" and "last modifier is not the creator". The thresholds are named constants in `CorrelationEngine`.
 
-## Architecture
+**Strongest individual pattern.** Rules are checked in priority order: *retained tracked-revision evidence*, then *multiple-RSID-pattern evidence*, then *metadata-only evidence*, then *no selected edit artifact observed*. Each result carries a `basis`, its `limitations`, and an `evidence` trace (OOXML part, element, attribute and value).
 
-The program is divided into four primary modules:
+**RSID counting rule** (`--rsid-scope`, or the sidebar in the dashboard):
 
-### 1. Package Reader
+| Scope | Counts |
+| --- | --- |
+| `document` (default) | RSIDs referenced in `word/document.xml` |
+| `content` | as `document`, excluding section properties (`w:sectPr`), which templates copy into new files |
+| `all` | root, settings table and document combined (original prototype rule) |
 
-Opens the DOCX OOXML package and retrieves the XML parts required by the analyser.
+All three are reported side by side in the corpus evaluation, as an ablation.
 
-```text
-DOCX
-  |
-  v
-Package Reader
+## Visualisations
+
+**Single Document mode:**
+
+- Evidence overview metrics and the artifact profile.
+- RSID tab: root, table, attributes, occurrence map and relationship view.
+- Revision tab: typed revision table and chart.
+- Metadata tab.
+- Interpretation tab: the **evidence profile chart**, the strongest pattern, the **supporting evidence trace** table, and limitations.
+- Package details.
+
+**Corpus Comparison mode:**
+
+- Evidence profile grouped bars and the **evidence fingerprint heatmap**.
+- **Artifact presence heatmap** (RQ1).
+- Detection matrix and timestamp comparison.
+- Ground-truth agreement chart.
+- Research metrics.
+- **RSID-rule ablation chart** and **confusion matrices** (RQ2).
+- **Artifact survival heatmap** (RQ3).
+
+The same figures are exported as PNG files by `batch_evaluate.py`.
+
+## Installation
+
+Requires Python 3.10+.
+
+```bash
+git clone https://github.com/InterTechSA/docx-edit-trail-analyser.git
+cd docx-edit-trail-analyser
+python -m venv .venv
+.venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
+pip install -r requirements.txt
 ```
 
-### 2. Target XML Parser
+## Usage
 
-Parses the selected XML structures and identifies only the elements and attributes required by the defined evidence groups.
+**Dashboard (visual evidence view):**
 
-```text
-Package Reader
-      |
-      v
-Target XML Parser
+```bash
+streamlit run src/dashboard.py
 ```
 
-### 3. Artifact Extractor
+Choose *Single Document* or *Corpus Comparison*, then upload DOCX files. In corpus mode, upload parents together with their derived samples so survival can be computed. Ground truth is loaded automatically from `samples/ground_truth/<same name>.json`.
 
-Extracts the research-defined forensic artifacts, including:
+**Command line (single file, text evidence view):**
 
-* RSIDs
-* Revision markup
-* Revision author and date attributes
-* Core document properties
-* Application properties
-
-```text
-Target XML Parser
-        |
-        v
-Artifact Extractor
+```bash
+python src/main.py samples/controlled/03_tracked_changes.docx
+python src/main.py path/to/file.docx --rsid-scope content
 ```
 
-### 4. Correlation Engine
+**Batch evaluation (tables and figures for the report):**
 
-Applies predefined evidence rules to the extracted artifacts and produces a concise evidence view.
-
-```text
-Artifact Extractor
-        |
-        v
-Correlation Engine
-        |
-        v
-Evidence View
+```bash
+python src/batch_evaluate.py                                   # pilot corpus
+python src/batch_evaluate.py --samples samples/word_native --out results/word_native
 ```
 
-The complete processing flow is therefore:
+This writes `summary.md`, `evidence_summary.csv`, `artifact_presence.csv`, `ground_truth_results.csv`, `survival.csv`, `metrics.json` and `fig1`-`fig6` PNG files.
 
-```text
-DOCX File
-    |
-    v
-Package Reader
-    |
-    v
-Target XML Parser
-    |
-    v
-Artifact Extractor
-    |
-    v
-Correlation Engine
-    |
-    v
-Evidence View
-```
+## Controlled corpus and ground truth
 
-## Project Structure
+| Folder | Contents |
+| --- | --- |
+| `samples/controlled/` | 3 python-docx samples (pilot validation of the extractor) |
+| `samples/word_native/` | Microsoft Word samples created by the recorded protocol, plus `environment.json` |
+| `samples/ground_truth/` | one JSON per sample: actions, parent (`derived_from`) or comparison sample (`compare_with`), transformation, expected evidence, classification label |
+
+The ground truth for the 12 Word-native samples (W01-W12) was written **before** the documents were created (pre-registration). They cover:
+
+- a baseline
+- save-as without editing
+- direct edits across sessions
+- tracked changes retained, accepted and rejected
+- two same-template negative controls
+- Document Inspector cleaning
+- a file-copy positive control
+- paste into a new document
+
+See **[docs/CORPUS_GUIDE.md](docs/CORPUS_GUIDE.md)** for the step-by-step protocol.
+
+## Evaluation and research questions
+
+| RQ | Question | Measured by |
+| --- | --- | --- |
+| RQ1 | Which selected RSID, revision-markup and property artifacts remain in final DOCX files after controlled creation, saving, editing and Track Changes actions? | artifact presence table and heatmap; ground-truth extraction correctness |
+| RQ2 | Does rule-based correlation of RSID, revision and context evidence classify the predefined categories more accurately than a metadata-only baseline? | accuracy, per-category precision, recall and false-positive rate, correlation benefit, confusion matrices, RSID-rule ablation, template false positives |
+| RQ3 | How do save without editing, accepting and rejecting tracked changes, copying and metadata cleaning affect the survival and interpretation of the selected artifacts? | parent-to-child survival rate per artifact group (survival heatmap) |
+
+Undefined ratios are reported as `n/a`, never as 0 or 1. Metrics based on fewer than 10 labelled samples are flagged as illustrative.
+
+**Pilot result (synthetic corpus, 3 samples):** 14/14 evaluated ground-truth checks matched. The pilot also showed that an unedited, template-derived file already carries 3 distinct RSIDs, all on `w:sectPr`, which motivated the `content` RSID rule. See `results/pilot_synthetic/`.
+
+## Project structure
 
 ```text
 docx-edit-trail-analyser/
-|
 |-- README.md
-|-- main.py
-|-- package_reader.py
-|-- xml_parser.py
-|-- artifact_extractor.py
-|-- correlation_engine.py
-|-- models.py
-|
+|-- requirements.txt
+|-- docs/
+|   |-- CORPUS_GUIDE.md                 what a corpus is + Word-native protocol
+|   `-- TECHNICAL_AND_VIDEO_GUIDE.md    internals, every visual, demo script, Q&A
+|-- src/
+|   |-- package_reader.py               module 1
+|   |-- xml_parser.py                   module 2
+|   |-- artifact_extractor.py           module 3
+|   |-- correlation_engine.py           module 4
+|   |-- evidence_pipeline.py            runs modules 1-4 (shared by all interfaces)
+|   |-- dashboard.py                    Streamlit visual evidence view
+|   |-- main.py                         command-line evidence view
+|   |-- batch_evaluate.py               corpus evaluation -> CSV / JSON / PNG
+|   |-- corpus_evaluation.py            combines all evaluation components
+|   |-- corpus_comparison.py            per-sample comparison records
+|   |-- ground_truth_evaluator.py       expected vs observed
+|   |-- baseline_classifier.py          metadata-only baseline (RQ2)
+|   |-- research_metrics.py             precision / recall / FPR / survival / benefit / confusion
+|   `-- survival_analysis.py            parent -> child artifact survival (RQ3)
 |-- samples/
-|
-`-- tests/
+|   |-- controlled/                     pilot (python-docx)
+|   |-- word_native/                    Word-native corpus + environment.json
+|   `-- ground_truth/                   one JSON per sample
+|-- results/                           batch evaluation outputs
+`-- tests/                             unittest suite
 ```
-
-The structure may evolve during implementation while maintaining the four-module architecture defined by the project.
 
 ## Testing
 
-Testing will use a controlled, self-created corpus of non-sensitive DOCX documents.
+```bash
+python -m unittest discover -s tests
+```
 
-The environment and relevant variables will be recorded, including:
+There are 79 tests. They cover every module, Word-native revision structures (paragraph marks, moves, formatting changes), the three RSID rules, evidence traceability, survival analysis, corpus evaluation and the batch exporter.
 
-* Operating system
-* Microsoft Word version
-* Template
-* Track Changes configuration
-* Save procedure
+## Scope and limitations
 
-Test documents will represent controlled actions and transformations such as:
+The analyser does **not**:
 
-* Baseline document creation
-* Save without editing
-* Ordinary direct editing
-* Copying documents
-* Tracked changes
-* Accepting tracked changes
-* Rejecting tracked changes
-* Independent documents created from the same template
-* Metadata-cleaning variants
+- determine authenticity or forgery
+- identify the person who edited a file
+- reconstruct complete edit history
+- count editors or sessions from RSIDs
+- recover deleted content or analyse disk images
+- detect deliberate tampering with the XML
 
-Each test document will have separate ground-truth information describing the actions used to create it.
-
-The analyser will process only the final DOCX file and will not be provided with the document's known history during analysis.
-
-## Evaluation
-
-The project will evaluate:
-
-* Extraction correctness
-* Precision
-* Recall
-* False-positive rate
-* Artifact survival rate
-* Correlation benefit
-
-The evaluation is intended to determine both the usefulness and limitations of the selected artifacts for forensic analysis.
-
-## Forensic Interpretation
-
-RSIDs, revision markup, and document metadata must be interpreted cautiously.
-
-For example, the presence of multiple RSIDs may provide an investigative lead, but it does not prove that multiple people edited the document or establish an exact number of editing sessions.
-
-Similarly, creator names, last-modifier values, and timestamps are contextual artifacts rather than independent proof of authorship or authenticity.
-
-The analyser therefore prioritises **evidence transparency and explainability**. Where the tool makes a classification, the investigator should be able to inspect the artifacts responsible for that result.
+Author names, dates and timestamps are application-supplied and editable. The absence of an artifact does not show that an event did not happen. Results come from one workstation and one Word version, and should not be generalised beyond that without further samples.
 
 ## Status
 
-**Current status:** Initial development
-
-Planned implementation sequence:
-
-* [ ] Package Reader
-* [ ] Target XML Parser
-* [ ] Artifact Extractor
-* [ ] RSID extraction
-* [ ] Retained revision extraction
-* [ ] Context metadata extraction
-* [ ] Correlation Engine
-* [ ] Evidence view
-* [ ] Controlled test corpus
-* [ ] Evaluation
-
-## Academic Project
-
-This project is being developed as a digital forensics research project investigating the forensic usefulness and limitations of residual edit-related artifacts within Microsoft Word DOCX files.
+- [x] Package Reader, Target XML Parser, Artifact Extractor
+- [x] RSID, retained-revision and context-metadata extraction (including Word-native revision types)
+- [x] Correlation Engine: evidence profile, strongest pattern, evidence trace, three RSID rules
+- [x] Evidence views: Streamlit dashboard and command line
+- [x] Evaluation: ground truth, metrics, metadata-only baseline, ablation, survival analysis
+- [x] Batch evaluator with report figures
+- [x] Pilot corpus (synthetic) evaluated
+- [x] Word-native corpus protocol and pre-registered ground truth
+- [ ] Word-native corpus created and evaluated

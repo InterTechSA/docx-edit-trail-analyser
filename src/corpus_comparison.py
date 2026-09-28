@@ -80,6 +80,11 @@ class CorpusComparison:
                     0
                 ),
 
+            "other_revision_markers":
+                len(revisions)
+                - revision_types.get("insertion", 0)
+                - revision_types.get("deletion", 0),
+
             "creator":
                 core_properties.get(
                     "creator"
