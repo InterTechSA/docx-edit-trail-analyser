@@ -1,6 +1,6 @@
 {
   "run": {
-    "generated_utc": "2026-09-28T19:42:35.691101+00:00",
+    "generated_utc": "2026-09-28T20:09:25.281171+00:00",
     "python": "3.14.7",
     "platform": "Windows-11-10.0.26200-SP0",
     "primary_rsid_scope": "document",
@@ -1719,10 +1719,10 @@
         },
         {
           "artifact": "Deletion text",
-          "expected": "brown",
+          "expected": "brown ",
           "observed": "brown ",
-          "matched": false,
-          "status": "Mismatch",
+          "matched": true,
+          "status": "Match",
           "note": null
         },
         {
@@ -1759,8 +1759,8 @@
         }
       ],
       "evaluated_count": 7,
-      "matched_count": 6,
-      "mismatched_count": 1,
+      "matched_count": 7,
+      "mismatched_count": 0,
       "not_evaluated_count": 1
     },
     "W06_tracked_accepted.docx": {
