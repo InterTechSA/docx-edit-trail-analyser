@@ -1,0 +1,27 @@
+{
+  "sample_id": "W08_template_control_A",
+  "file": "samples/word_native/W08_template_control_A.docx",
+  "corpus": "word_native",
+  "status": "pre-registered - confirm every step was followed exactly; record any deviation in 'deliberate_deviations'",
+  "role": "negative control",
+  "negative_control": true,
+  "transformation": "independent document (same Normal template)",
+  "creation_method": "New blank document, one session, unrelated to W01",
+  "controlled_actions": [
+    "File > New > Blank document",
+    "Type exactly: Negative control document A.",
+    "File > Save As > W08_template_control_A.docx",
+    "Close Word"
+  ],
+  "deliberate_deviations": [],
+  "expected_selected_evidence": {
+    "retained_insertions": 0,
+    "retained_deletions": 0,
+    "context_metadata_present": true,
+    "classification": "metadata-only evidence",
+    "rsid_expectation": "No claim; any RSID shared with W09 comes from the template, not from a derivation."
+  },
+  "research_limitations": [
+    "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+  ]
+}

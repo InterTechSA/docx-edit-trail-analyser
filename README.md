@@ -23,6 +23,8 @@ A digital-forensics research tool that reads the hidden edit trail inside Micros
 - [Project structure](#project-structure)
 - [Testing](#testing)
 - [Scope and limitations](#scope-and-limitations)
+- [References](#references)
+
 ---
 
 ## Why
@@ -156,7 +158,7 @@ The ground truth for the 12 Word-native samples (W01-W12) was written **before**
 - a file-copy positive control
 - paste into a new document
 
-See **[docs/CORPUS_GUIDE.md](docs/CORPUS_GUIDE.md)** for the step-by-step protocol.
+Each JSON file lists the exact Word steps for its sample in `controlled_actions`.
 
 ## Evaluation and research questions
 
@@ -176,9 +178,6 @@ Undefined ratios are reported as `n/a`, never as 0 or 1. Metrics based on fewer 
 docx-edit-trail-analyser/
 |-- README.md
 |-- requirements.txt
-|-- docs/
-|   |-- CORPUS_GUIDE.md                 what a corpus is + Word-native protocol
-|   `-- TECHNICAL_AND_VIDEO_GUIDE.md    internals, every visual, demo script, Q&A
 |-- src/
 |   |-- package_reader.py               module 1
 |   |-- xml_parser.py                   module 2
@@ -234,3 +233,17 @@ Author names, dates and timestamps are application-supplied and editable. The ab
 - [x] Pilot corpus (synthetic) evaluated
 - [x] Word-native corpus protocol and pre-registered ground truth
 - [ ] Word-native corpus created and evaluated
+
+## References
+
+1. Didriksen, E. (2014). *Forensic analysis of OOXML documents* [Master's thesis, Gjøvik University College].
+2. ECMA International. (2021). *Standard ECMA-376: Office Open XML file formats* (5th ed.).
+3. Fu, Z., Sun, X., Liu, Y., & Li, B. (2011). Forensic investigation of OOXML format documents. *Digital Investigation, 8*(1), 48-55. https://doi.org/10.1016/j.diin.2011.04.001
+4. Jeong, D., & Lee, S. (2017). Study on the tracking revision history of MS Word files for forensic investigation. *Digital Investigation, 23*, 3-10. https://doi.org/10.1016/j.diin.2017.08.003
+5. Joun, J., Chung, H., Park, J., & Lee, S. (2021). Relevance analysis using revision identifier in MS Word. *Journal of Forensic Sciences, 66*(1), 323-335. https://doi.org/10.1111/1556-4029.14584
+6. Spennemann, D. H. R. (2023). Establishing genealogies of born digital content: The suitability of revision identifier (RSID) numbers in MS Word for forensic enquiry. *Publications, 11*(3), 35. https://doi.org/10.3390/publications11030035
+7. Spennemann, D. H. R., & Singh, C. L. (2024). The generation of revision identifier (rsid) numbers in MS Word: Implications for document analysis. *International Journal of Digital Curation, 18*(1). https://doi.org/10.2218/ijdc.v18i1.870
+
+## License
+
+MIT. See [LICENSE](LICENSE).
