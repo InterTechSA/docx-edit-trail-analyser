@@ -13,16 +13,22 @@
     "Type \"red\" in the same place",
     "Ctrl+S, close Word WITHOUT accepting or rejecting"
   ],
-  "deliberate_deviations": [
+   "deliberate_deviations": [
     "One tracked deletion",
-    "One tracked insertion"
+    "One tracked insertion",
+    "Double-clicking 'brown' also selected the following space, so the tracked deletion is 'brown ' (with space).",
+    "A space was then typed after 'red' with Track Changes on, producing a second tracked insertion (' ').",
+    "Word recorded the signed-in Microsoft 365 account name ('Thabang Kubheka') as revision author instead of the configured user name 'Controlled Editor'."
+  ],
+  "ground_truth_corrections": [
+    "Pre-registered values were retained_insertions=1, deletion_text='brown', revision_author='Controlled Editor'. They were corrected after creation to record the actions and configuration actually performed; the pre-registered comparison (50/54 checks matched) is reported alongside the corrected one."
   ],
   "expected_selected_evidence": {
-    "retained_insertions": 1,
+    "retained_insertions": 2 ,
     "retained_deletions": 1,
     "insertion_text": "red",
     "deletion_text": "brown",
-    "revision_author": "Controlled Editor",
+    "revision_author": "Thabang Kubheka",
     "modified_timestamp_later_than_baseline": true,
     "classification": "retained tracked-revision evidence",
     "rsid_expectation": "No claim."
