@@ -24,7 +24,7 @@ W04_second_edit_session.docx,RSID expectation,No claim.,6 distinct RSID value(s)
 W05_tracked_retained.docx,Retained insertions,2,2,Match,
 W05_tracked_retained.docx,Retained deletions,1,1,Match,
 W05_tracked_retained.docx,Insertion text,red,"red,  ",Match,
-W05_tracked_retained.docx,Deletion text,brown,brown ,Mismatch,
+W05_tracked_retained.docx,Deletion text,brown ,brown ,Match,
 W05_tracked_retained.docx,Revision author,Thabang Kubheka,Thabang Kubheka,Match,
 W05_tracked_retained.docx,Evidence classification,retained tracked-revision evidence,retained tracked-revision evidence,Match,
 W05_tracked_retained.docx,Modified timestamp later than baseline,True,True,Match,

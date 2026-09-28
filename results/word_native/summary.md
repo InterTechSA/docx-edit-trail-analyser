@@ -1,8 +1,8 @@
 # Corpus evaluation summary
 
-Generated 2026-09-28T19:42:35.691101+00:00 - 12 samples analysed, 12 with ground truth, 12 with a classification label.
+Generated 2026-09-28T20:09:25.281171+00:00 - 12 samples analysed, 12 with ground truth, 12 with a classification label.
 
-Extraction correctness: 52/54 evaluated ground-truth checks matched (96%).
+Extraction correctness: 53/54 evaluated ground-truth checks matched (98%).
 
 ## Evidence per sample (RQ1)
 
