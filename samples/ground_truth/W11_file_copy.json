@@ -1,0 +1,24 @@
+{
+  "sample_id": "W11_file_copy",
+  "file": "samples/word_native/W11_file_copy.docx",
+  "corpus": "word_native",
+  "status": "pre-registered - confirm every step was followed exactly; record any deviation in 'deliberate_deviations'",
+  "derived_from": "W03_direct_edit.docx",
+  "transformation": "file-system copy (not opened in Word)",
+  "creation_method": "Byte-identical File Explorer copy of W03, never opened",
+  "controlled_actions": [
+    "In File Explorer copy W03_direct_edit.docx and rename the copy W11_file_copy.docx",
+    "Do NOT open it"
+  ],
+  "deliberate_deviations": [],
+  "expected_selected_evidence": {
+    "retained_insertions": 0,
+    "retained_deletions": 0,
+    "modified_timestamp_later_than_baseline": false,
+    "classification": "multiple-RSID-pattern evidence",
+    "rsid_expectation": "Positive control: every artifact should survive (100%)."
+  },
+  "research_limitations": [
+    "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+  ]
+}
