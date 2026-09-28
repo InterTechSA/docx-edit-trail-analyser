@@ -4,6 +4,7 @@ import tempfile
 from collections import Counter
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -13,6 +14,7 @@ from artifact_extractor import ArtifactExtractor
 from correlation_engine import CorrelationEngine
 from corpus_comparison import CorpusComparison
 from ground_truth_evaluator import GroundTruthEvaluator
+from research_metrics import ResearchMetrics
 
 
 # ---------------------------------------------------------
@@ -145,6 +147,24 @@ def analyse_docx(file_path):
         app_properties=app_properties,
     )
 
+    # -------------------------------------------------------
+    # Evidence profile: independent 0-3 scores per evidence
+    # dimension (revision / RSID / metadata). This is what
+    # drives the non-binary visualisation in the Interpretation
+    # tab. Unlike `classification`, which reports a single
+    # strongest pattern, this preserves every dimension so a
+    # document can register on more than one at once.
+    # -------------------------------------------------------
+
+    evidence_profile = correlation_engine.score_evidence_dimensions(
+        rsid_root=rsid_root,
+        rsid_table=rsid_table,
+        document_rsids=document_rsids,
+        revisions=revisions,
+        core_properties=core_properties,
+        app_properties=app_properties,
+    )
+
     unique_rsids = set()
 
     if rsid_root:
@@ -173,6 +193,7 @@ def analyse_docx(file_path):
         "core_properties": core_properties,
         "app_properties": app_properties,
         "classification": classification,
+        "evidence_profile": evidence_profile,
     }
 
 
@@ -490,6 +511,113 @@ def create_evaluation_dataframe(
             "Note": "string",
         }
     )
+
+
+def create_evidence_profile_dataframe(evidence_profile):
+    """
+    Convert an evidence profile (as returned by
+    CorrelationEngine.score_evidence_dimensions) into a
+    presentation-friendly DataFrame for charting.
+
+    This is deliberately dimension-based rather than a single
+    verdict column, so the chart it feeds shows a *profile*
+    (e.g. moderate revision evidence + minimal RSID evidence +
+    extensive metadata evidence) rather than one label.
+    """
+
+    display_names = {
+        "revision_evidence": "Retained Revisions",
+        "rsid_evidence": "RSID Pattern",
+        "metadata_evidence": "Context Metadata",
+    }
+
+    rows = []
+
+    for key, display_name in display_names.items():
+
+        dimension = evidence_profile.get(key, {})
+
+        rows.append({
+            "Evidence Dimension": display_name,
+            "Strength (0-3)": dimension.get("score", 0),
+            "Label": dimension.get("label", "Unknown"),
+            "Basis": dimension.get("basis", ""),
+        })
+
+    return pd.DataFrame(rows)
+
+
+
+def format_metric(value):
+    """Format a ratio for display; undefined metrics show n/a."""
+
+    if value is None:
+        return "n/a"
+
+    return f"{value:.2f}"
+
+
+PROFILE_SCALE = alt.Scale(domain=[0, 3])
+
+
+def single_profile_chart(profile_dataframe):
+    """
+    Horizontal bar chart of one sample's evidence profile with
+    a fixed 0-3 axis so charts are comparable across samples.
+    """
+
+    return (
+        alt.Chart(profile_dataframe)
+        .mark_bar()
+        .encode(
+            x=alt.X(
+                "Strength (0-3):Q",
+                scale=PROFILE_SCALE,
+                axis=alt.Axis(tickCount=4, format="d"),
+            ),
+            y=alt.Y(
+                "Evidence Dimension:N",
+                sort=None,
+                title=None,
+                axis=alt.Axis(
+                    labelLimit=200,
+                    labelOverlap=False,
+                ),
+            ),
+            tooltip=["Evidence Dimension", "Label", "Basis"],
+        )
+        .properties(height=180)
+    )
+
+
+def corpus_profile_chart(profile_rows):
+    """
+    Grouped bar chart of every sample's evidence profile with a
+    fixed 0-3 axis.
+    """
+
+    long_dataframe = pd.DataFrame(profile_rows).melt(
+        id_vars="sample",
+        var_name="Dimension",
+        value_name="Strength",
+    )
+
+    return (
+        alt.Chart(long_dataframe)
+        .mark_bar()
+        .encode(
+            x=alt.X("sample:N", title=None),
+            xOffset="Dimension:N",
+            y=alt.Y(
+                "Strength:Q",
+                scale=PROFILE_SCALE,
+                axis=alt.Axis(tickCount=4, format="d"),
+            ),
+            color="Dimension:N",
+            tooltip=["sample", "Dimension", "Strength"],
+        )
+    )
+
 
 # ---------------------------------------------------------
 # Dashboard heading
@@ -826,6 +954,55 @@ if analysis_mode == "Corpus Comparison":
     )
 
     # -----------------------------------------------------
+    # Evidence profile comparison (non-binary view)
+    # -----------------------------------------------------
+
+    st.subheader(
+        "Evidence Profile Comparison"
+    )
+
+    st.markdown(
+        """
+        Each sample is scored independently across three
+        evidence dimensions (0 = none observed, 3 = extensive).
+        A sample can score on more than one dimension at once —
+        this view is deliberately **not** a single "edited" /
+        "not edited" verdict, but a profile of what was
+        observed across all selected artifact types.
+        """
+    )
+
+    profile_rows = []
+
+    for sample_name, evidence in analysed_samples.items():
+
+        profile = evidence.get("evidence_profile", {})
+
+        profile_rows.append({
+            "sample": sample_name,
+            "Retained Revisions": profile.get(
+                "revision_evidence", {}
+            ).get("score", 0),
+            "RSID Pattern": profile.get(
+                "rsid_evidence", {}
+            ).get("score", 0),
+            "Context Metadata": profile.get(
+                "metadata_evidence", {}
+            ).get("score", 0),
+        })
+
+    st.altair_chart(
+        corpus_profile_chart(profile_rows),
+        use_container_width=True,
+    )
+
+    st.dataframe(
+        pd.DataFrame(profile_rows),
+        width="stretch",
+        hide_index=True,
+    )
+
+    # -----------------------------------------------------
     # Artifact matrix
     # -----------------------------------------------------
 
@@ -1153,6 +1330,138 @@ if analysis_mode == "Corpus Comparison":
         st.bar_chart(
             agreement_chart
         )
+
+        # -------------------------------------------------
+        # Research metrics (proposal evaluation measures)
+        # -------------------------------------------------
+
+        st.subheader(
+            "Research Metrics"
+        )
+
+        st.caption(
+            "Precision, recall, false-positive rate, artifact "
+            "survival rate and correlation benefit, computed only "
+            "from expectations stated in the ground-truth JSON."
+        )
+
+        research_metrics = (
+            ResearchMetrics().evaluate_corpus(
+                analysed_samples,
+                ground_truth_records
+            )
+        )
+
+        labelled = research_metrics["labelled_samples"]
+
+        if labelled < 10:
+
+            st.warning(
+                f"Only {labelled} sample(s) have a ground-truth "
+                f"classification label. Classification metrics "
+                f"and correlation benefit rest on this few "
+                f"samples and are illustrative only; a larger "
+                f"controlled corpus is required before drawing "
+                f"conclusions about research question 2."
+            )
+
+        benefit = research_metrics["correlation_benefit"]
+
+        if benefit is not None:
+
+            benefit_col_1, benefit_col_2, benefit_col_3 = (
+                st.columns(3)
+            )
+
+            benefit_col_1.metric(
+                "Rule-based accuracy",
+                format_metric(benefit["rule_accuracy"]),
+            )
+
+            benefit_col_2.metric(
+                "Metadata-only baseline accuracy",
+                format_metric(benefit["baseline_accuracy"]),
+            )
+
+            benefit_col_3.metric(
+                "Correlation benefit",
+                format_metric(benefit["benefit"]),
+            )
+
+            st.caption(
+                "The baseline sees only core/application "
+                "metadata, so it can predict only two of the "
+                "four categories. Benefit = rule-based accuracy "
+                "minus baseline accuracy on the same "
+                f"{benefit['samples']} labelled sample(s)."
+            )
+
+            class_rows = []
+
+            report = research_metrics["classification"]
+
+            for label, values in report["per_class"].items():
+
+                class_rows.append({
+                    "Category": label,
+                    "Support": values["support"],
+                    "Precision": format_metric(values["precision"]),
+                    "Recall": format_metric(values["recall"]),
+                    "False-positive rate": format_metric(
+                        values["false_positive_rate"]
+                    ),
+                })
+
+            st.write("**Per-category results (rule-based):**")
+
+            st.dataframe(
+                pd.DataFrame(class_rows),
+                width="stretch",
+                hide_index=True,
+            )
+
+        else:
+
+            st.info(
+                "No ground-truth record states an expected "
+                "classification, so classification metrics and "
+                "correlation benefit are not available."
+            )
+
+        artifact_metric_rows = []
+
+        for name, values in research_metrics["artifacts"].items():
+
+            artifact_metric_rows.append({
+                "Artifact": name,
+                "Samples": values["samples"],
+                "Precision": format_metric(values["precision"]),
+                "Recall": format_metric(values["recall"]),
+                "False-positive rate": format_metric(
+                    values["false_positive_rate"]
+                ),
+                "Survival rate": format_metric(
+                    values["survival_rate"]
+                ),
+            })
+
+        if artifact_metric_rows:
+
+            st.write("**Artifact detection and survival:**")
+
+            st.dataframe(
+                pd.DataFrame(artifact_metric_rows),
+                width="stretch",
+                hide_index=True,
+            )
+
+            st.caption(
+                "Survival rate = fraction of the artifacts the "
+                "controlled actions should have left that were "
+                "observed in the final DOCX. RSID and metadata "
+                "survival are not computed because the current "
+                "ground truth states no expectations for them."
+            )
 
         # -------------------------------------------------
         # Important methodological interpretation
@@ -1742,7 +2051,7 @@ with rsid_tab:
 
     st.markdown(
         """
-        This view shows where each distinct RSID was
+        This view shows where each distinct RSID is
         observed across the selected OOXML artifacts.
 
         It distinguishes identifiers recorded in the
@@ -2037,12 +2346,74 @@ with interpretation_tab:
         "classification"
     ]
 
+    evidence_profile = evidence[
+        "evidence_profile"
+    ]
+
     st.header(
         "Evidence Interpretation"
     )
 
+    # -------------------------------------------------
+    # Evidence profile chart (non-binary, primary view)
+    # -------------------------------------------------
+
     st.subheader(
-        "Strongest Observed Evidence Pattern"
+        "Evidence Profile"
+    )
+
+    st.markdown(
+        """
+        The chart below scores each evidence dimension
+        **independently**, from 0 (none observed) to 3
+        (extensive). A document is not reduced to a single
+        "edited" / "not edited" verdict — it can register on
+        more than one dimension simultaneously, and the
+        profile below reflects that.
+        """
+    )
+
+    profile_dataframe = (
+        create_evidence_profile_dataframe(
+            evidence_profile
+        )
+    )
+
+    st.altair_chart(
+        single_profile_chart(profile_dataframe),
+        use_container_width=True,
+    )
+
+    st.caption(
+        "RSIDs are scored only when referenced in "
+        "word/document.xml; settings-table-only RSIDs are "
+        "noted but not scored. Metadata is scored on "
+        "later-save and different-modifier signals (max 2), "
+        "not on how many fields are populated."
+    )
+
+    st.table(
+        profile_dataframe[
+            ["Evidence Dimension", "Label", "Basis"]
+        ].set_index("Evidence Dimension")
+    )
+
+    st.divider()
+
+    # -------------------------------------------------
+    # Existing categorical classification, reframed as
+    # one signal among several rather than the verdict
+    # -------------------------------------------------
+
+    st.subheader(
+        "Strongest Individual Evidence Pattern"
+    )
+
+    st.caption(
+        "This names the single highest-priority pattern "
+        "observed, for continuity with the evidence-profile "
+        "chart above. It is one signal among several, not a "
+        "standalone determination."
     )
 
     st.success(
@@ -2076,11 +2447,11 @@ with interpretation_tab:
         )
 
     st.info(
-        "The classification describes the selected "
-        "artifacts observed in the final DOCX package. "
-        "It is not a binary determination that the "
-        "document is authentic, forged, edited, or "
-        "unedited."
+        "Neither the evidence profile nor the classification "
+        "above is a binary determination that the document is "
+        "authentic, forged, edited, or unedited. They describe "
+        "the selected artifacts observed in the final DOCX "
+        "package only."
     )
 
 
