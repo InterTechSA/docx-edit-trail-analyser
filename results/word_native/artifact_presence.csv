@@ -1,0 +1,13 @@
+sample,rsidRoot,Settings RSID table,Referenced RSIDs,Content revisions,Other revision markers,Author metadata,Timestamp metadata,Application metadata
+W01_baseline.docx,1,2,1,0,0,2,2,2
+W02_save_as_no_edit.docx,1,4,1,0,0,2,2,2
+W03_direct_edit.docx,1,4,2,0,0,2,2,2
+W04_second_edit_session.docx,1,6,3,0,0,2,2,2
+W05_tracked_retained.docx,1,4,2,3,0,2,2,2
+W06_tracked_accepted.docx,1,6,2,0,0,2,2,2
+W07_tracked_rejected.docx,1,6,1,0,0,2,2,2
+W08_template_control_A.docx,1,2,1,0,0,2,2,2
+W09_template_control_B.docx,1,2,1,0,0,2,2,2
+W10_inspected.docx,1,6,2,0,0,0,2,2
+W11_file_copy.docx,1,4,2,0,0,2,2,2
+W12_paste_into_new.docx,1,2,1,0,0,2,2,2

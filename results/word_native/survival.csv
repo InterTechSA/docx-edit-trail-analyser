@@ -1,0 +1,81 @@
+sample,parent,transformation,artifact,parent_count,child_count,retained,introduced,survival_rate
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,rsidRoot,1,1,1,0,1.0
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Settings RSID table,2,4,2,2,1.0
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Referenced RSIDs,1,1,1,0,1.0
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Content revisions,0,0,0,0,
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Other revision markers,0,0,0,0,
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Author metadata,2,2,2,0,1.0
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Timestamp metadata,2,2,0,2,0.0
+W02_save_as_no_edit.docx,W01_baseline.docx,save as without editing,Application metadata,2,2,2,0,1.0
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),rsidRoot,1,1,1,0,1.0
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Settings RSID table,2,4,2,2,1.0
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Referenced RSIDs,1,2,1,1,1.0
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Content revisions,0,0,0,0,
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Other revision markers,0,0,0,0,
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Author metadata,2,2,2,0,1.0
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Timestamp metadata,2,2,1,1,0.5
+W03_direct_edit.docx,W01_baseline.docx,direct edit (Track Changes off),Application metadata,2,2,2,0,1.0
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,rsidRoot,1,1,1,0,1.0
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Settings RSID table,4,6,4,2,1.0
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Referenced RSIDs,2,3,2,1,1.0
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Content revisions,0,0,0,0,
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Other revision markers,0,0,0,0,
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Author metadata,2,2,2,0,1.0
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Timestamp metadata,2,2,1,1,0.5
+W04_second_edit_session.docx,W03_direct_edit.docx,further direct edit in a third session,Application metadata,2,2,2,0,1.0
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,rsidRoot,1,1,1,0,1.0
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Settings RSID table,2,4,2,2,1.0
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Referenced RSIDs,1,2,1,1,1.0
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Content revisions,0,3,0,3,
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Other revision markers,0,0,0,0,
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Author metadata,2,2,2,0,1.0
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Timestamp metadata,2,2,1,1,0.5
+W05_tracked_retained.docx,W01_baseline.docx,tracked changes left pending,Application metadata,2,2,2,0,1.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,rsidRoot,1,1,1,0,1.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Settings RSID table,4,6,4,2,1.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Referenced RSIDs,2,2,2,0,1.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Content revisions,3,0,0,0,0.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Other revision markers,0,0,0,0,
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Author metadata,2,2,2,0,1.0
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Timestamp metadata,2,2,1,1,0.5
+W06_tracked_accepted.docx,W05_tracked_retained.docx,accept all tracked changes,Application metadata,2,2,2,0,1.0
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,rsidRoot,1,1,1,0,1.0
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Settings RSID table,4,6,4,2,1.0
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Referenced RSIDs,2,1,1,0,0.5
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Content revisions,3,0,0,0,0.0
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Other revision markers,0,0,0,0,
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Author metadata,2,2,2,0,1.0
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Timestamp metadata,2,2,1,1,0.5
+W07_tracked_rejected.docx,W05_tracked_retained.docx,reject all tracked changes,Application metadata,2,2,2,0,1.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),rsidRoot,1,1,0,1,0.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Settings RSID table,2,2,0,2,0.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Referenced RSIDs,1,1,0,1,0.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Content revisions,0,0,0,0,
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Other revision markers,0,0,0,0,
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Author metadata,2,2,2,0,1.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Timestamp metadata,2,2,0,2,0.0
+W09_template_control_B.docx,W08_template_control_A.docx,independent document (same Normal template),Application metadata,2,2,2,0,1.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,rsidRoot,1,1,1,0,1.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Settings RSID table,4,6,4,2,1.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Referenced RSIDs,2,2,2,0,1.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Content revisions,0,0,0,0,
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Other revision markers,0,0,0,0,
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Author metadata,2,0,0,0,0.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Timestamp metadata,2,2,0,2,0.0
+W10_inspected.docx,W03_direct_edit.docx,Document Inspector: remove properties and personal information,Application metadata,2,2,2,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),rsidRoot,1,1,1,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Settings RSID table,4,4,4,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Referenced RSIDs,2,2,2,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Content revisions,0,0,0,0,
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Other revision markers,0,0,0,0,
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Author metadata,2,2,2,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Timestamp metadata,2,2,2,0,1.0
+W11_file_copy.docx,W03_direct_edit.docx,file-system copy (not opened in Word),Application metadata,2,2,2,0,1.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,rsidRoot,1,1,0,1,0.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Settings RSID table,4,2,0,2,0.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Referenced RSIDs,2,1,0,1,0.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Content revisions,0,0,0,0,
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Other revision markers,0,0,0,0,
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Author metadata,2,2,2,0,1.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Timestamp metadata,2,2,0,2,0.0
+W12_paste_into_new.docx,W03_direct_edit.docx,copy text and paste into a new document,Application metadata,2,2,2,0,1.0

@@ -1,0 +1,67 @@
+sample,check,expected,observed,status,note
+W01_baseline.docx,Retained insertions,0,0,Match,
+W01_baseline.docx,Retained deletions,0,0,Match,
+W01_baseline.docx,Evidence classification,metadata-only evidence,metadata-only evidence,Match,
+W01_baseline.docx,Context metadata present,True,True,Match,
+W01_baseline.docx,Creator present,True,True,Match,
+W01_baseline.docx,RSID expectation,No claim; observe how many RSIDs a single Word session leaves.,2 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W02_save_as_no_edit.docx,Retained insertions,0,0,Match,
+W02_save_as_no_edit.docx,Retained deletions,0,0,Match,
+W02_save_as_no_edit.docx,Evidence classification,metadata-only evidence,metadata-only evidence,Match,
+W02_save_as_no_edit.docx,Context metadata present,True,True,Match,
+W02_save_as_no_edit.docx,RSID expectation,No claim; RQ3 asks whether a save without edits adds an RSID.,4 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W03_direct_edit.docx,Retained insertions,0,0,Match,
+W03_direct_edit.docx,Retained deletions,0,0,Match,
+W03_direct_edit.docx,Evidence classification,multiple-RSID-pattern evidence,multiple-RSID-pattern evidence,Match,
+W03_direct_edit.docx,Context metadata present,True,True,Match,
+W03_direct_edit.docx,Modified timestamp later than baseline,True,True,Match,
+W03_direct_edit.docx,RSID expectation,"No claim; expect new RSIDs on edited runs, recorded as observed.",4 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W04_second_edit_session.docx,Retained insertions,0,0,Match,
+W04_second_edit_session.docx,Retained deletions,0,0,Match,
+W04_second_edit_session.docx,Evidence classification,multiple-RSID-pattern evidence,multiple-RSID-pattern evidence,Match,
+W04_second_edit_session.docx,Modified timestamp later than baseline,True,True,Match,
+W04_second_edit_session.docx,RSID expectation,No claim.,6 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W05_tracked_retained.docx,Retained insertions,2,2,Match,
+W05_tracked_retained.docx,Retained deletions,1,1,Match,
+W05_tracked_retained.docx,Insertion text,red,"red,  ",Match,
+W05_tracked_retained.docx,Deletion text,brown,brown ,Mismatch,
+W05_tracked_retained.docx,Revision author,Thabang Kubheka,Thabang Kubheka,Match,
+W05_tracked_retained.docx,Evidence classification,retained tracked-revision evidence,retained tracked-revision evidence,Match,
+W05_tracked_retained.docx,Modified timestamp later than baseline,True,True,Match,
+W05_tracked_retained.docx,RSID expectation,No claim.,4 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W06_tracked_accepted.docx,Retained insertions,0,0,Match,
+W06_tracked_accepted.docx,Retained deletions,0,0,Match,
+W06_tracked_accepted.docx,Evidence classification,multiple-RSID-pattern evidence,multiple-RSID-pattern evidence,Match,
+W06_tracked_accepted.docx,Modified timestamp later than baseline,True,True,Match,
+W06_tracked_accepted.docx,RSID expectation,No claim; RQ3 asks whether RSIDs of the tracked session survive acceptance.,6 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W07_tracked_rejected.docx,Retained insertions,0,0,Match,
+W07_tracked_rejected.docx,Retained deletions,0,0,Match,
+W07_tracked_rejected.docx,Evidence classification,multiple-RSID-pattern evidence,metadata-only evidence,Mismatch,
+W07_tracked_rejected.docx,Modified timestamp later than baseline,True,True,Match,
+W07_tracked_rejected.docx,RSID expectation,No claim; a mismatch here shows how rejection can erase the editing trail.,6 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W08_template_control_A.docx,Retained insertions,0,0,Match,
+W08_template_control_A.docx,Retained deletions,0,0,Match,
+W08_template_control_A.docx,Evidence classification,metadata-only evidence,metadata-only evidence,Match,
+W08_template_control_A.docx,Context metadata present,True,True,Match,
+W08_template_control_A.docx,RSID expectation,"No claim; any RSID shared with W09 comes from the template, not from a derivation.",2 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W09_template_control_B.docx,Retained insertions,0,0,Match,
+W09_template_control_B.docx,Retained deletions,0,0,Match,
+W09_template_control_B.docx,Evidence classification,metadata-only evidence,metadata-only evidence,Match,
+W09_template_control_B.docx,Context metadata present,True,True,Match,
+W09_template_control_B.docx,RSID expectation,No claim; shared RSIDs with W08 are a template false-positive risk.,2 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W10_inspected.docx,Retained insertions,0,0,Match,
+W10_inspected.docx,Retained deletions,0,0,Match,
+W10_inspected.docx,Evidence classification,multiple-RSID-pattern evidence,multiple-RSID-pattern evidence,Match,
+W10_inspected.docx,Creator present,False,False,Match,
+W10_inspected.docx,Last modifier present,False,False,Match,
+W10_inspected.docx,RSID expectation,No claim; RQ3 asks whether cleaning also removes RSIDs.,6 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W11_file_copy.docx,Retained insertions,0,0,Match,
+W11_file_copy.docx,Retained deletions,0,0,Match,
+W11_file_copy.docx,Evidence classification,multiple-RSID-pattern evidence,multiple-RSID-pattern evidence,Match,
+W11_file_copy.docx,Modified timestamp later than baseline,False,False,Match,
+W11_file_copy.docx,RSID expectation,Positive control: every artifact should survive (100%).,4 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+W12_paste_into_new.docx,Retained insertions,0,0,Match,
+W12_paste_into_new.docx,Retained deletions,0,0,Match,
+W12_paste_into_new.docx,Evidence classification,metadata-only evidence,metadata-only evidence,Match,
+W12_paste_into_new.docx,Context metadata present,True,True,Match,
+W12_paste_into_new.docx,RSID expectation,No claim; RQ3 asks whether pasted runs keep the source RSIDs.,2 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.

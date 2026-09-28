@@ -206,6 +206,18 @@ def markdown_table(rows, columns):
 # Figures
 # =========================================================
 
+def short_label(row):
+    """Compact row label for the survival heatmap: 'W06  accept all ...'."""
+
+    sample = Path(row["sample"]).stem.split("_")[0]
+    transformation = row["transformation"]
+
+    if len(transformation) > 38:
+        transformation = transformation[:36].rstrip() + "..."
+
+    return f"{sample}  {transformation}"
+
+
 def make_figures(out_dir, analysed, results, summary_rows):
 
     try:
@@ -248,7 +260,7 @@ def make_figures(out_dir, analysed, results, summary_rows):
     def save(fig, name):
         path = out_dir / name
         fig.tight_layout()
-        fig.savefig(path, dpi=200)
+        fig.savefig(path, dpi=200, bbox_inches="tight")
         plt.close(fig)
         written.append(path)
 
@@ -291,7 +303,7 @@ def make_figures(out_dir, analysed, results, summary_rows):
     if survival:
         pairs = []
         for row in survival:
-            label = f"{row['transformation']}  ({row['sample']})"
+            label = short_label(row)
             if label not in pairs:
                 pairs.append(label)
         groups = []
@@ -299,12 +311,12 @@ def make_figures(out_dir, analysed, results, summary_rows):
             if row["artifact"] not in groups:
                 groups.append(row["artifact"])
         lookup = {
-            (f"{r['transformation']}  ({r['sample']})", r["artifact"]):
+            (short_label(r), r["artifact"]):
                 r["survival_rate"]
             for r in survival
         }
         data = [[lookup.get((p, g)) for g in groups] for p in pairs]
-        fig, ax = plt.subplots(figsize=(10, 0.5 * len(pairs) + 2.4))
+        fig, ax = plt.subplots(figsize=(12, 0.55 * len(pairs) + 2.6))
         image = heatmap(
             ax, data, pairs, groups, 1,
             lambda v: "-" if v is None else f"{v:.0%}",

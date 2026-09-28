@@ -1,0 +1,2208 @@
+{
+  "run": {
+    "generated_utc": "2026-09-28T19:42:35.691101+00:00",
+    "python": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "primary_rsid_scope": "document",
+    "sample_folders": [
+      "samples/word_native"
+    ],
+    "samples_analysed": 12,
+    "samples_with_ground_truth": 12,
+    "errors": {}
+  },
+  "labelled_samples": 12,
+  "true_labels": {
+    "W01_baseline.docx": "metadata-only evidence",
+    "W02_save_as_no_edit.docx": "metadata-only evidence",
+    "W03_direct_edit.docx": "multiple-RSID-pattern evidence",
+    "W04_second_edit_session.docx": "multiple-RSID-pattern evidence",
+    "W05_tracked_retained.docx": "retained tracked-revision evidence",
+    "W06_tracked_accepted.docx": "multiple-RSID-pattern evidence",
+    "W07_tracked_rejected.docx": "multiple-RSID-pattern evidence",
+    "W08_template_control_A.docx": "metadata-only evidence",
+    "W09_template_control_B.docx": "metadata-only evidence",
+    "W10_inspected.docx": "multiple-RSID-pattern evidence",
+    "W11_file_copy.docx": "multiple-RSID-pattern evidence",
+    "W12_paste_into_new.docx": "metadata-only evidence"
+  },
+  "metrics": {
+    "labelled_samples": 12,
+    "classification": {
+      "samples": 12,
+      "accuracy": 0.9166666666666666,
+      "macro_precision": 0.9444444444444445,
+      "macro_recall": 0.9444444444444445,
+      "per_class": {
+        "retained tracked-revision evidence": {
+          "support": 1,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 11,
+          "precision": 1.0,
+          "recall": 1.0,
+          "false_positive_rate": 0.0
+        },
+        "multiple-RSID-pattern evidence": {
+          "support": 6,
+          "tp": 5,
+          "fp": 0,
+          "fn": 1,
+          "tn": 6,
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "false_positive_rate": 0.0
+        },
+        "metadata-only evidence": {
+          "support": 5,
+          "tp": 5,
+          "fp": 1,
+          "fn": 0,
+          "tn": 6,
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "false_positive_rate": 0.14285714285714285
+        },
+        "no selected edit artifact observed": {
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 12,
+          "precision": null,
+          "recall": null,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "baseline_classification": {
+      "samples": 12,
+      "accuracy": 0.4166666666666667,
+      "macro_precision": 0.4166666666666667,
+      "macro_recall": 0.3333333333333333,
+      "per_class": {
+        "retained tracked-revision evidence": {
+          "support": 1,
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "tn": 11,
+          "precision": null,
+          "recall": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "multiple-RSID-pattern evidence": {
+          "support": 6,
+          "tp": 0,
+          "fp": 0,
+          "fn": 6,
+          "tn": 6,
+          "precision": null,
+          "recall": 0.0,
+          "false_positive_rate": 0.0
+        },
+        "metadata-only evidence": {
+          "support": 5,
+          "tp": 5,
+          "fp": 7,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.4166666666666667,
+          "recall": 1.0,
+          "false_positive_rate": 1.0
+        },
+        "no selected edit artifact observed": {
+          "support": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 12,
+          "precision": null,
+          "recall": null,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "correlation_benefit": {
+      "samples": 12,
+      "rule_accuracy": 0.9166666666666666,
+      "baseline_accuracy": 0.4166666666666667,
+      "benefit": 0.49999999999999994,
+      "rule_only_correct": 6,
+      "baseline_only_correct": 0
+    },
+    "artifacts": {
+      "Retained insertions": {
+        "samples": 12,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "tn": 11,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "survival_rate": 1.0
+      },
+      "Retained deletions": {
+        "samples": 12,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "tn": 11,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "survival_rate": 1.0
+      }
+    },
+    "overall_survival_rate": 1.0
+  },
+  "confusion": {
+    "rule (document)": {
+      "labels": [
+        "retained tracked-revision evidence",
+        "multiple-RSID-pattern evidence",
+        "metadata-only evidence",
+        "no selected edit artifact observed"
+      ],
+      "matrix": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "rule (content)": {
+      "labels": [
+        "retained tracked-revision evidence",
+        "multiple-RSID-pattern evidence",
+        "metadata-only evidence",
+        "no selected edit artifact observed"
+      ],
+      "matrix": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "rule (all)": {
+      "labels": [
+        "retained tracked-revision evidence",
+        "multiple-RSID-pattern evidence",
+        "metadata-only evidence",
+        "no selected edit artifact observed"
+      ],
+      "matrix": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          6,
+          0,
+          0
+        ],
+        [
+          0,
+          5,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "metadata-only baseline": {
+      "labels": [
+        "retained tracked-revision evidence",
+        "multiple-RSID-pattern evidence",
+        "metadata-only evidence",
+        "no selected edit artifact observed"
+      ],
+      "matrix": [
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "categories": [
+    "retained tracked-revision evidence",
+    "multiple-RSID-pattern evidence",
+    "metadata-only evidence",
+    "no selected edit artifact observed"
+  ],
+  "ablation": {
+    "document": {
+      "accuracy": 0.9166666666666666,
+      "macro_precision": 0.9444444444444445,
+      "macro_recall": 0.9444444444444445,
+      "negative_controls": 2,
+      "negative_control_rsid_false_positives": 0,
+      "predictions": {
+        "W01_baseline.docx": "metadata-only evidence",
+        "W02_save_as_no_edit.docx": "metadata-only evidence",
+        "W03_direct_edit.docx": "multiple-RSID-pattern evidence",
+        "W04_second_edit_session.docx": "multiple-RSID-pattern evidence",
+        "W05_tracked_retained.docx": "retained tracked-revision evidence",
+        "W06_tracked_accepted.docx": "multiple-RSID-pattern evidence",
+        "W07_tracked_rejected.docx": "metadata-only evidence",
+        "W08_template_control_A.docx": "metadata-only evidence",
+        "W09_template_control_B.docx": "metadata-only evidence",
+        "W10_inspected.docx": "multiple-RSID-pattern evidence",
+        "W11_file_copy.docx": "multiple-RSID-pattern evidence",
+        "W12_paste_into_new.docx": "metadata-only evidence"
+      }
+    },
+    "content": {
+      "accuracy": 0.9166666666666666,
+      "macro_precision": 0.9444444444444445,
+      "macro_recall": 0.9444444444444445,
+      "negative_controls": 2,
+      "negative_control_rsid_false_positives": 0,
+      "predictions": {
+        "W01_baseline.docx": "metadata-only evidence",
+        "W02_save_as_no_edit.docx": "metadata-only evidence",
+        "W03_direct_edit.docx": "multiple-RSID-pattern evidence",
+        "W04_second_edit_session.docx": "multiple-RSID-pattern evidence",
+        "W05_tracked_retained.docx": "retained tracked-revision evidence",
+        "W06_tracked_accepted.docx": "multiple-RSID-pattern evidence",
+        "W07_tracked_rejected.docx": "metadata-only evidence",
+        "W08_template_control_A.docx": "metadata-only evidence",
+        "W09_template_control_B.docx": "metadata-only evidence",
+        "W10_inspected.docx": "multiple-RSID-pattern evidence",
+        "W11_file_copy.docx": "multiple-RSID-pattern evidence",
+        "W12_paste_into_new.docx": "metadata-only evidence"
+      }
+    },
+    "all": {
+      "accuracy": 0.5833333333333334,
+      "macro_precision": 0.7727272727272727,
+      "macro_recall": 0.6666666666666666,
+      "negative_controls": 2,
+      "negative_control_rsid_false_positives": 2,
+      "predictions": {
+        "W01_baseline.docx": "multiple-RSID-pattern evidence",
+        "W02_save_as_no_edit.docx": "multiple-RSID-pattern evidence",
+        "W03_direct_edit.docx": "multiple-RSID-pattern evidence",
+        "W04_second_edit_session.docx": "multiple-RSID-pattern evidence",
+        "W05_tracked_retained.docx": "retained tracked-revision evidence",
+        "W06_tracked_accepted.docx": "multiple-RSID-pattern evidence",
+        "W07_tracked_rejected.docx": "multiple-RSID-pattern evidence",
+        "W08_template_control_A.docx": "multiple-RSID-pattern evidence",
+        "W09_template_control_B.docx": "multiple-RSID-pattern evidence",
+        "W10_inspected.docx": "multiple-RSID-pattern evidence",
+        "W11_file_copy.docx": "multiple-RSID-pattern evidence",
+        "W12_paste_into_new.docx": "multiple-RSID-pattern evidence"
+      }
+    },
+    "metadata-only baseline": {
+      "accuracy": 0.4166666666666667,
+      "predictions": {
+        "W01_baseline.docx": "metadata-only evidence",
+        "W02_save_as_no_edit.docx": "metadata-only evidence",
+        "W03_direct_edit.docx": "metadata-only evidence",
+        "W04_second_edit_session.docx": "metadata-only evidence",
+        "W05_tracked_retained.docx": "metadata-only evidence",
+        "W06_tracked_accepted.docx": "metadata-only evidence",
+        "W07_tracked_rejected.docx": "metadata-only evidence",
+        "W08_template_control_A.docx": "metadata-only evidence",
+        "W09_template_control_B.docx": "metadata-only evidence",
+        "W10_inspected.docx": "metadata-only evidence",
+        "W11_file_copy.docx": "metadata-only evidence",
+        "W12_paste_into_new.docx": "metadata-only evidence"
+      }
+    }
+  },
+  "survival": [
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Settings RSID table",
+      "parent_count": 2,
+      "child_count": 4,
+      "retained": 2,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "save as without editing",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Settings RSID table",
+      "parent_count": 2,
+      "child_count": 4,
+      "retained": 2,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 1,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "direct edit (Track Changes off)",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 6,
+      "retained": 4,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 3,
+      "retained": 2,
+      "introduced": 1,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "further direct edit in a third session",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Settings RSID table",
+      "parent_count": 2,
+      "child_count": 4,
+      "retained": 2,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 1,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 3,
+      "retained": 0,
+      "introduced": 3,
+      "survival_rate": null
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "parent": "W01_baseline.docx",
+      "transformation": "tracked changes left pending",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 6,
+      "retained": 4,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Content revisions",
+      "parent_count": 3,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "accept all tracked changes",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 6,
+      "retained": 4,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Content revisions",
+      "parent_count": 3,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 1,
+      "introduced": 1,
+      "survival_rate": 0.5
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "parent": "W05_tracked_retained.docx",
+      "transformation": "reject all tracked changes",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 0,
+      "introduced": 1,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Settings RSID table",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 0,
+      "introduced": 1,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "parent": "W08_template_control_A.docx",
+      "transformation": "independent document (same Normal template)",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 6,
+      "retained": 4,
+      "introduced": 2,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "Document Inspector: remove properties and personal information",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 1,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 4,
+      "retained": 4,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "file-system copy (not opened in Word)",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "rsidRoot",
+      "parent_count": 1,
+      "child_count": 1,
+      "retained": 0,
+      "introduced": 1,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Settings RSID table",
+      "parent_count": 4,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Referenced RSIDs",
+      "parent_count": 2,
+      "child_count": 1,
+      "retained": 0,
+      "introduced": 1,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Content revisions",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Other revision markers",
+      "parent_count": 0,
+      "child_count": 0,
+      "retained": 0,
+      "introduced": 0,
+      "survival_rate": null
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Author metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Timestamp metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 0,
+      "introduced": 2,
+      "survival_rate": 0.0
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "parent": "W03_direct_edit.docx",
+      "transformation": "copy text and paste into a new document",
+      "artifact": "Application metadata",
+      "parent_count": 2,
+      "child_count": 2,
+      "retained": 2,
+      "introduced": 0,
+      "survival_rate": 1.0
+    }
+  ],
+  "presence": [
+    {
+      "sample": "W01_baseline.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 2,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W02_save_as_no_edit.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 4,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W03_direct_edit.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 4,
+      "Referenced RSIDs": 2,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W04_second_edit_session.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 6,
+      "Referenced RSIDs": 3,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W05_tracked_retained.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 4,
+      "Referenced RSIDs": 2,
+      "Content revisions": 3,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W06_tracked_accepted.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 6,
+      "Referenced RSIDs": 2,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W07_tracked_rejected.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 6,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W08_template_control_A.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 2,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W09_template_control_B.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 2,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W10_inspected.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 6,
+      "Referenced RSIDs": 2,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 0,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W11_file_copy.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 4,
+      "Referenced RSIDs": 2,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    },
+    {
+      "sample": "W12_paste_into_new.docx",
+      "rsidRoot": 1,
+      "Settings RSID table": 2,
+      "Referenced RSIDs": 1,
+      "Content revisions": 0,
+      "Other revision markers": 0,
+      "Author metadata": 2,
+      "Timestamp metadata": 2,
+      "Application metadata": 2
+    }
+  ],
+  "evaluations": {
+    "W01_baseline.docx": {
+      "sample_id": "W01_baseline",
+      "file": "samples/word_native/W01_baseline.docx",
+      "creation_method": "New blank document in Microsoft Word, one editing session",
+      "controlled_actions": [
+        "File > New > Blank document",
+        "Type exactly: The quick brown fox jumps over the dog.",
+        "File > Save As > W01_baseline.docx",
+        "Close Word"
+      ],
+      "deliberate_deviations": [],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "metadata-only evidence",
+          "observed": "metadata-only evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Creator present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; observe how many RSIDs a single Word session leaves.",
+          "observed": "2 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 5,
+      "matched_count": 5,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W02_save_as_no_edit.docx": {
+      "sample_id": "W02_save_as_no_edit",
+      "file": "samples/word_native/W02_save_as_no_edit.docx",
+      "creation_method": "W01 opened in Word and saved under a new name with no content change",
+      "controlled_actions": [
+        "Open W01_baseline.docx in Word",
+        "Make no change",
+        "File > Save As > W02_save_as_no_edit.docx",
+        "Close Word"
+      ],
+      "deliberate_deviations": [
+        "Save operation without any content edit"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "metadata-only evidence",
+          "observed": "metadata-only evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; RQ3 asks whether a save without edits adds an RSID.",
+          "observed": "4 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W03_direct_edit.docx": {
+      "sample_id": "W03_direct_edit",
+      "file": "samples/word_native/W03_direct_edit.docx",
+      "creation_method": "Byte-identical file copy of W01, edited in a second Word session",
+      "controlled_actions": [
+        "In File Explorer copy W01_baseline.docx and rename the copy W03_direct_edit.docx",
+        "Open W03_direct_edit.docx in Word; confirm Review > Track Changes is OFF",
+        "Replace the word \"brown\" with \"red\"",
+        "Place the cursor before \"dog\" and type \"lazy \"",
+        "Ctrl+S, close Word"
+      ],
+      "deliberate_deviations": [
+        "Content replacement",
+        "Content insertion",
+        "Second editing session"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "multiple-RSID-pattern evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; expect new RSIDs on edited runs, recorded as observed.",
+          "observed": "4 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 5,
+      "matched_count": 5,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W04_second_edit_session.docx": {
+      "sample_id": "W04_second_edit_session",
+      "file": "samples/word_native/W04_second_edit_session.docx",
+      "creation_method": "Byte-identical copy of W03, edited again",
+      "controlled_actions": [
+        "In File Explorer copy W03_direct_edit.docx and rename the copy W04_second_edit_session.docx",
+        "Open it in Word; Track Changes OFF",
+        "Press Ctrl+End, Enter, and type exactly: A second paragraph was added later.",
+        "Ctrl+S, close Word"
+      ],
+      "deliberate_deviations": [
+        "New paragraph added in a third session"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "multiple-RSID-pattern evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim.",
+          "observed": "6 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W05_tracked_retained.docx": {
+      "sample_id": "W05_tracked_retained",
+      "file": "samples/word_native/W05_tracked_retained.docx",
+      "creation_method": "Byte-identical copy of W01, edited with Track Changes on",
+      "controlled_actions": [
+        "In File Explorer copy W01_baseline.docx and rename the copy W05_tracked_retained.docx",
+        "Open it in Word; Review > Track Changes ON",
+        "Double-click \"brown\" and press Delete (do not delete the space)",
+        "Type \"red\" in the same place",
+        "Ctrl+S, close Word WITHOUT accepting or rejecting"
+      ],
+      "deliberate_deviations": [
+        "One tracked deletion",
+        "One tracked insertion",
+        "Double-clicking 'brown' also selected the following space, so the tracked deletion is 'brown ' (with space).",
+        "A space was then typed after 'red' with Track Changes on, producing a second tracked insertion (' ').",
+        "Word recorded the signed-in Microsoft 365 account name ('Thabang Kubheka') as revision author instead of the configured user name 'Controlled Editor'."
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted.",
+        "If Word selected the trailing space together with 'brown', the retained text will include it; record this as a deviation rather than editing the file."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 2,
+          "observed": 2,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 1,
+          "observed": 1,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Insertion text",
+          "expected": "red",
+          "observed": "red,  ",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Deletion text",
+          "expected": "brown",
+          "observed": "brown ",
+          "matched": false,
+          "status": "Mismatch",
+          "note": null
+        },
+        {
+          "artifact": "Revision author",
+          "expected": "Thabang Kubheka",
+          "observed": "Thabang Kubheka",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "retained tracked-revision evidence",
+          "observed": "retained tracked-revision evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim.",
+          "observed": "4 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 7,
+      "matched_count": 6,
+      "mismatched_count": 1,
+      "not_evaluated_count": 1
+    },
+    "W06_tracked_accepted.docx": {
+      "sample_id": "W06_tracked_accepted",
+      "file": "samples/word_native/W06_tracked_accepted.docx",
+      "creation_method": "Byte-identical copy of W05; all tracked changes accepted",
+      "controlled_actions": [
+        "In File Explorer copy W05_tracked_retained.docx and rename the copy W06_tracked_accepted.docx",
+        "Open it in Word; Review > Accept > Accept All Changes",
+        "Ctrl+S, close Word"
+      ],
+      "deliberate_deviations": [
+        "Tracked revisions accepted"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "multiple-RSID-pattern evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; RQ3 asks whether RSIDs of the tracked session survive acceptance.",
+          "observed": "6 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W07_tracked_rejected.docx": {
+      "sample_id": "W07_tracked_rejected",
+      "file": "samples/word_native/W07_tracked_rejected.docx",
+      "creation_method": "Byte-identical copy of W05; all tracked changes rejected",
+      "controlled_actions": [
+        "In File Explorer copy W05_tracked_retained.docx and rename the copy W07_tracked_rejected.docx",
+        "Open it in Word; Review > Reject > Reject All Changes",
+        "Ctrl+S, close Word"
+      ],
+      "deliberate_deviations": [
+        "Tracked revisions rejected; visible text returns to the baseline sentence"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted.",
+        "Labelled by known history (an editing session occurred). If the tool reports metadata-only, that is a documented limit of final-file analysis, not an extraction error."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "metadata-only evidence",
+          "matched": false,
+          "status": "Mismatch",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; a mismatch here shows how rejection can erase the editing trail.",
+          "observed": "6 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 3,
+      "mismatched_count": 1,
+      "not_evaluated_count": 1
+    },
+    "W08_template_control_A.docx": {
+      "sample_id": "W08_template_control_A",
+      "file": "samples/word_native/W08_template_control_A.docx",
+      "creation_method": "New blank document, one session, unrelated to W01",
+      "controlled_actions": [
+        "File > New > Blank document",
+        "Type exactly: Negative control document A.",
+        "File > Save As > W08_template_control_A.docx",
+        "Close Word"
+      ],
+      "deliberate_deviations": [],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "metadata-only evidence",
+          "observed": "metadata-only evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; any RSID shared with W09 comes from the template, not from a derivation.",
+          "observed": "2 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W09_template_control_B.docx": {
+      "sample_id": "W09_template_control_B",
+      "file": "samples/word_native/W09_template_control_B.docx",
+      "creation_method": "New blank document, one session, unrelated to W01 or W08",
+      "controlled_actions": [
+        "Close Word completely after creating W08",
+        "Start Word, File > New > Blank document",
+        "Type exactly: Negative control document B.",
+        "File > Save As > W09_template_control_B.docx",
+        "Close Word"
+      ],
+      "deliberate_deviations": [],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "metadata-only evidence",
+          "observed": "metadata-only evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; shared RSIDs with W08 are a template false-positive risk.",
+          "observed": "2 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W10_inspected.docx": {
+      "sample_id": "W10_inspected",
+      "file": "samples/word_native/W10_inspected.docx",
+      "creation_method": "Byte-identical copy of W03, cleaned with Word's Document Inspector",
+      "controlled_actions": [
+        "In File Explorer copy W03_direct_edit.docx and rename the copy W10_inspected.docx",
+        "Open it in Word; File > Info > Check for Issues > Inspect Document",
+        "Tick only 'Document Properties and Personal Information'; Inspect; Remove All",
+        "Ctrl+S, close Word"
+      ],
+      "deliberate_deviations": [
+        "Metadata cleaning"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "multiple-RSID-pattern evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Creator present",
+          "expected": false,
+          "observed": false,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Last modifier present",
+          "expected": false,
+          "observed": false,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; RQ3 asks whether cleaning also removes RSIDs.",
+          "observed": "6 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 5,
+      "matched_count": 5,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W11_file_copy.docx": {
+      "sample_id": "W11_file_copy",
+      "file": "samples/word_native/W11_file_copy.docx",
+      "creation_method": "Byte-identical File Explorer copy of W03, never opened",
+      "controlled_actions": [
+        "In File Explorer copy W03_direct_edit.docx and rename the copy W11_file_copy.docx",
+        "Do NOT open it"
+      ],
+      "deliberate_deviations": [],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "multiple-RSID-pattern evidence",
+          "observed": "multiple-RSID-pattern evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Modified timestamp later than baseline",
+          "expected": false,
+          "observed": false,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "Positive control: every artifact should survive (100%).",
+          "observed": "4 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    },
+    "W12_paste_into_new.docx": {
+      "sample_id": "W12_paste_into_new",
+      "file": "samples/word_native/W12_paste_into_new.docx",
+      "creation_method": "Text of W03 copied (Ctrl+A, Ctrl+C) and pasted into a new blank document",
+      "controlled_actions": [
+        "Open W03_direct_edit.docx; Ctrl+A, Ctrl+C; close it without saving",
+        "File > New > Blank document; Ctrl+V (default paste, keep source formatting)",
+        "File > Save As > W12_paste_into_new.docx",
+        "Close Word"
+      ],
+      "deliberate_deviations": [
+        "Content transferred by clipboard into a new package"
+      ],
+      "research_limitations": [
+        "Word-native sample. RSID values are produced by Microsoft Word and are recorded as observed, not predicted."
+      ],
+      "results": [
+        {
+          "artifact": "Retained insertions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Retained deletions",
+          "expected": 0,
+          "observed": 0,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Evidence classification",
+          "expected": "metadata-only evidence",
+          "observed": "metadata-only evidence",
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "Context metadata present",
+          "expected": true,
+          "observed": true,
+          "matched": true,
+          "status": "Match",
+          "note": null
+        },
+        {
+          "artifact": "RSID expectation",
+          "expected": "No claim; RQ3 asks whether pasted runs keep the source RSIDs.",
+          "observed": "2 distinct RSID value(s) observed",
+          "matched": null,
+          "status": "Not evaluated",
+          "note": "The ground truth explicitly makes no validation claim about generator RSID behaviour."
+        }
+      ],
+      "evaluated_count": 4,
+      "matched_count": 4,
+      "mismatched_count": 0,
+      "not_evaluated_count": 1
+    }
+  }
+}
