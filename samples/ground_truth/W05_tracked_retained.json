@@ -27,7 +27,7 @@
     "retained_insertions": 2 ,
     "retained_deletions": 1,
     "insertion_text": "red",
-    "deletion_text": "brown",
+    "deletion_text": "brown ",
     "revision_author": "Thabang Kubheka",
     "modified_timestamp_later_than_baseline": true,
     "classification": "retained tracked-revision evidence",
