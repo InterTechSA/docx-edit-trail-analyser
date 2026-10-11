@@ -1,0 +1,17 @@
+sample,check,expected,observed,status,note
+01_baseline.docx,Retained insertions,0,0,Match,
+01_baseline.docx,Retained deletions,0,0,Match,
+01_baseline.docx,Context metadata present,True,True,Match,
+01_baseline.docx,RSID expectation,No claim; generator behavior is not Microsoft Word behavior.,9 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+02_edited.docx,Retained insertions,0,0,Match,
+02_edited.docx,Retained deletions,0,0,Match,
+02_edited.docx,Context metadata present,True,True,Match,
+02_edited.docx,Modified timestamp later than baseline,True,True,Match,
+02_edited.docx,RSID expectation,No claim; generator behavior is not Microsoft Word behavior.,9 distinct RSID value(s) observed,Not evaluated,The ground truth explicitly makes no validation claim about generator RSID behaviour.
+03_tracked_changes.docx,Retained insertions,1,1,Match,
+03_tracked_changes.docx,Retained deletions,1,1,Match,
+03_tracked_changes.docx,Insertion text,red,red,Match,
+03_tracked_changes.docx,Deletion text,brown,brown,Match,
+03_tracked_changes.docx,Revision author,Controlled Editor,Controlled Editor,Match,
+03_tracked_changes.docx,Revision dates,"2026-09-05T18:25:00Z, 2026-09-05T18:26:00Z","2026-09-05T18:26:00Z, 2026-09-05T18:25:00Z",Match,
+03_tracked_changes.docx,Evidence classification,retained tracked-revision evidence,retained tracked-revision evidence,Match,

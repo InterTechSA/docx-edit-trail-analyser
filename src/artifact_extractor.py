@@ -1,75 +1,28 @@
-from xml_parser import NAMESPACES
-
-
-# RSID attributes examined in word/document.xml.
-#   rsidR        paragraph / run / section added
-#   rsidRDefault default RSID for runs in a paragraph (Word writes
-#                this on almost every paragraph, so omitting it
-#                under-reports RSID evidence on Word-native files)
-#   rsidRPr      run properties last modified
-#   rsidDel      paragraph mark / run deleted
-#   rsidP        paragraph properties last modified
-#   rsidSect     section properties
-#   rsidTr       table row properties
-RSID_ATTRIBUTE_NAMES = frozenset({
-    "rsidR",
-    "rsidRDefault",
-    "rsidRPr",
-    "rsidDel",
-    "rsidP",
-    "rsidSect",
-    "rsidTr",
-})
-
-# Tracked formatting-change elements (ECMA-376 Part 1, 17.13.5).
-FORMATTING_CHANGE_ELEMENTS = (
-    "rPrChange",
-    "pPrChange",
-    "sectPrChange",
-    "tblPrChange",
-    "trPrChange",
-    "tcPrChange",
-)
-
-# Revision types that represent retained *content* changes.
-CONTENT_REVISION_TYPES = frozenset({
-    "insertion",
-    "deletion",
-    "move_from",
-    "move_to",
-})
+from helpers.constants import NAMESPACES
+from helpers.constants import RSID_ATTRIBUTE_NAMES
+from helpers.constants import FORMATTING_CHANGE_ELEMENTS
+from helpers.constants import RSID_ROOT_PATH
 
 
 class ArtifactExtractor:
 
+    # Extract the rsidRoot value from word/settings.xml.
     def extract_rsid_root(self, settings_root):
-        """
-        Extract the rsidRoot value from word/settings.xml.
-
-        Returns:
-            str | None: The rsidRoot value if present.
-        """
 
         rsid_root = settings_root.find(
-            ".//w:rsids/w:rsidRoot",
+            RSID_ROOT_PATH,
             NAMESPACES
         )
-
+        
         if rsid_root is None:
             return None
 
         return rsid_root.get(
             f"{{{NAMESPACES['w']}}}val"
         )
-
+                
+    # Extract all RSID values from the RSID table from word/settings.xml.
     def extract_rsid_table(self, settings_root):
-        """
-        Extract all RSID values from the RSID table
-        in word/settings.xml.
-
-        Returns:
-            list[str]: RSID values found in the table.
-        """
 
         rsid_elements = settings_root.findall(
             ".//w:rsids/w:rsid",
@@ -88,14 +41,9 @@ class ArtifactExtractor:
 
         return rsids
 
+    # Extract RSID-related attributes from word/document.xml.
     def extract_document_rsids(self, document_root):
-        """
-        Extract RSID-related attributes from word/document.xml.
-
-        Returns:
-            list[dict]: RSID evidence records.
-        """
-
+        
         rsid_attribute_names = RSID_ATTRIBUTE_NAMES
 
         results = []
@@ -122,49 +70,9 @@ class ArtifactExtractor:
                     })
 
         return results
-
+    
+    # Extract retained tracked-revision markup from word/document.xml
     def extract_revisions(self, document_root):
-        """
-        Extract retained tracked-revision markup from
-        word/document.xml.
-
-        Word stores tracked changes in several structures, not
-        only as run-level w:ins / w:del. Each record is given a
-        precise type so that counts stay meaningful:
-
-            insertion / deletion
-                Content revisions: w:ins / w:del that wrap runs
-                of text. These are what a reader would call a
-                "tracked insertion" or "tracked deletion", and
-                they are the only types the ground truth counts
-                as retained insertions / deletions.
-
-            paragraph_mark_insertion / paragraph_mark_deletion
-                w:ins / w:del inside w:pPr/w:rPr. Word writes one
-                every time a paragraph break is inserted or
-                removed with Track Changes on. They carry no text,
-                so counting them as insertions would inflate the
-                insertion count on Word-native files.
-
-            table_row_insertion / table_row_deletion
-                w:ins / w:del inside w:trPr.
-
-            move_from / move_to
-                w:moveFrom / w:moveTo (tracked moves).
-
-            formatting_change
-                w:rPrChange, w:pPrChange, w:sectPrChange,
-                w:tblPrChange, w:trPrChange, w:tcPrChange
-                (tracked formatting changes).
-
-        Every record also carries traceability fields (part,
-        element, revision_id) so an investigator can locate the
-        exact XML that produced it.
-
-        Returns:
-            list[dict]: Revision evidence records containing
-            type, author, date, text, part, element, revision_id.
-        """
 
         parent_map = {
             child: parent
@@ -174,9 +82,6 @@ class ArtifactExtractor:
 
         revisions = []
 
-        # Content insertions first, then content deletions, then
-        # every other retained marker. The ordering is kept
-        # stable so existing reports and tests remain comparable.
         ordered_groups = [
             ("ins", "insertion"),
             ("del", "deletion"),
@@ -297,21 +202,12 @@ class ArtifactExtractor:
 
         return tag
 
+    # Extract text associated with a retained revision.
     def _extract_revision_text(
         self,
         revision_element,
         revision_type
     ):
-        """
-        Extract text associated with a retained revision.
-
-        Insertions and move destinations normally use w:t.
-        Deletions normally use w:delText. Move sources may use
-        either, depending on the producing application.
-
-        Returns:
-            str | None
-        """
 
         if revision_type in ("insertion", "move_to"):
             text_elements = revision_element.findall(
@@ -348,14 +244,8 @@ class ArtifactExtractor:
 
         return "".join(text_parts)
 
+    # Extract selected core document properties from docProps/core.xml.
     def extract_core_properties(self, core_root):
-        """
-        Extract selected core document properties
-        from docProps/core.xml.
-
-        Returns:
-            dict: Core property values.
-        """
 
         creator = core_root.find(
             "dc:creator",
@@ -386,14 +276,8 @@ class ArtifactExtractor:
             "modified": self._element_text(modified),
         }
 
+    # Extract selected application properties from docProps/app.xml.
     def extract_application_properties(self, app_root):
-        """
-        Extract selected application properties
-        from docProps/app.xml.
-
-        Returns:
-            dict: Application property values.
-        """
 
         application = app_root.find(
             "ep:Application",
@@ -411,12 +295,6 @@ class ArtifactExtractor:
         }
 
     def _element_text(self, element):
-        """
-        Return the text of an XML element.
-
-        Returns:
-            str | None
-        """
 
         if element is None:
             return None

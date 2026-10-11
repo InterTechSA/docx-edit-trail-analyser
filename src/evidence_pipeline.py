@@ -1,13 +1,4 @@
-"""
-Single end-to-end analysis pipeline for one DOCX file.
-
-    DOCX -> Package Reader -> Target XML Parser
-         -> Artifact Extractor -> Correlation Engine -> evidence dict
-
-The dashboard, the command-line tool (main.py) and the batch
-evaluator (batch_evaluate.py) all call analyse_docx(), so every
-interface reports exactly the same evidence for the same file.
-"""
+#Single end-to-end analysis pipeline for one DOCX file.
 
 from package_reader import DocxPackageReader
 from xml_parser import TargetXmlParser
@@ -16,21 +7,6 @@ from correlation_engine import CorrelationEngine
 
 
 def analyse_docx(file_path, rsid_scope="document"):
-    """
-    Run the forensic extraction pipeline against a DOCX file.
-
-    Only the final DOCX is examined. The pipeline is never given
-    the document's known history (ground truth is compared
-    afterwards, by a separate evaluator).
-
-    Returns:
-        dict with keys:
-            parts, missing_parts,
-            rsid_root, rsid_table, document_rsids, unique_rsids,
-            referenced_rsids, revisions,
-            core_properties, app_properties,
-            classification, evidence_profile, rsid_scope
-    """
 
     reader = DocxPackageReader(file_path)
     parts = reader.read_selected_parts()
@@ -105,14 +81,8 @@ def analyse_docx(file_path, rsid_scope="document"):
 
 
 def correlate(evidence, rsid_scope="document"):
-    """
-    (Re)run the correlation engine on already-extracted evidence.
-
-    Used by analyse_docx() and by the RSID-scope ablation, which
-    re-classifies the same extracted artifacts under a different
-    rule without re-reading the file.
-    """
-
+    
+    #Run the correlation engine on already-extracted evidence.
     engine = CorrelationEngine(rsid_scope=rsid_scope)
 
     arguments = dict(

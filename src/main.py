@@ -13,11 +13,7 @@ from pathlib import Path
 
 from correlation_engine import RSID_SCOPES
 from evidence_pipeline import analyse_docx
-
-
-def local_name(tag):
-
-    return tag.split("}", 1)[1] if "}" in tag else tag
+from helpers.helper_functions import local_name
 
 
 def section(title):

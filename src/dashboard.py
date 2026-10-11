@@ -8,12 +8,15 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from correlation_engine import RSID_SCOPES
 from corpus_comparison import CorpusComparison
 from corpus_evaluation import evaluate_corpus, resolve_baseline
 from evidence_pipeline import analyse_docx
 from ground_truth_evaluator import GroundTruthEvaluator
 from research_metrics import ResearchMetrics
+
+from helpers.helper_functions import local_name
+from helpers.helper_functions import format_metric
+from helpers.constants import RSID_SCOPES
 
 
 # ---------------------------------------------------------
@@ -31,32 +34,13 @@ st.set_page_config(
 # Helper functions
 # ---------------------------------------------------------
 
-def simplify_element_name(element_tag):
-    """
-    Convert an ElementTree namespace tag such as:
-
-    {http://schemas.../main}p
-
-    into:
-
-    p
-    """
-
-    if "}" in element_tag:
-        return element_tag.split("}", 1)[1]
-
-    return element_tag
-
-
 def create_rsid_occurrence_table(
     rsid_root,
     rsid_table,
     document_rsids
 ):
-    """
-    Count where each RSID was observed.
-    """
 
+    #Count where each RSID was observed.
     occurrences = Counter()
 
     if rsid_root:
@@ -129,7 +113,7 @@ def create_rsid_relationship_table(
 
         for item in document_matches:
 
-            element = simplify_element_name(
+            element = local_name(
                 item["element"]
             )
 
@@ -165,11 +149,8 @@ def create_rsid_relationship_table(
 
 
 def analyse_uploaded_file(uploaded_file):
-    """
-    Save an uploaded Streamlit DOCX temporarily,
-    analyse it, then safely remove the temporary file.
-    """
 
+    #Save an uploaded DOCX temporarily,analyse it, then safely remove the temporary file.
     temporary_path = None
 
     try:
@@ -207,10 +188,8 @@ def analyse_uploaded_file(uploaded_file):
 
 
 def get_project_root():
-    """
-    Return the project root directory.
-    """
-
+    
+    #Return the project root directory.
     return (
         Path(__file__)
         .resolve()
@@ -220,10 +199,8 @@ def get_project_root():
 
 
 def get_ground_truth_directory():
-    """
-    Return the controlled-corpus ground-truth directory.
-    """
-
+    
+    #Return the controlled-corpus ground-truth directory.
     return (
         get_project_root()
         / "samples"
@@ -398,19 +375,7 @@ def create_evidence_profile_dataframe(evidence_profile):
 
     return pd.DataFrame(rows)
 
-
-
-def format_metric(value):
-    """Format a ratio for display; undefined metrics show n/a."""
-
-    if value is None:
-        return "n/a"
-
-    return f"{value:.2f}"
-
-
 PROFILE_SCALE = alt.Scale(domain=[0, 3])
-
 
 def single_profile_chart(profile_dataframe):
     """
@@ -440,7 +405,6 @@ def single_profile_chart(profile_dataframe):
         )
         .properties(height=180)
     )
-
 
 def corpus_profile_chart(profile_rows):
     """
@@ -477,7 +441,6 @@ SHORT_CATEGORY = {
     "metadata-only evidence": "Metadata only",
     "no selected edit artifact observed": "None observed",
 }
-
 
 def profile_heatmap_chart(profile_rows):
     """
@@ -632,7 +595,7 @@ def confusion_heatmap_chart(title, confusion):
 # ---------------------------------------------------------
 
 st.title(
-    "🔎 DOCX Edit-Trail Analyser"
+    "DOCX Edit-Trail Analyser"
 )
 
 st.caption(
@@ -646,7 +609,6 @@ st.info(
     "a document is authentic, forged, or identify the "
     "physical person who edited it."
 )
-
 
 # ---------------------------------------------------------
 # Analysis mode
@@ -696,6 +658,9 @@ uploaded_files = st.file_uploader(
     accept_multiple_files=True,
 )
 
+# ---------------------------------------------------------
+# No File Uploaded yet
+# ---------------------------------------------------------
 
 if not uploaded_files:
 
@@ -1904,7 +1869,17 @@ if analysis_mode == "Corpus Comparison":
 # SINGLE DOCUMENT MODE
 # =========================================================
 
-uploaded_file = uploaded_files[0]
+if len(uploaded_files) > 1:
+
+        st.warning(
+            "You have uploaded more than one DOCX file. "
+            "Please remove the extra files."
+        )
+
+        st.stop()
+
+# Safety catch to just analyze the first file if multiple are uploaded and somehow the program gets here.
+uploaded_file = uploaded_files[0] 
 
 
 try:
@@ -1938,7 +1913,6 @@ st.subheader(
 st.caption(
     "Observed evidence from the uploaded DOCX package."
 )
-
 
 # ---------------------------------------------------------
 # Main evidence overview
@@ -2006,7 +1980,7 @@ with metric_4:
 
 
 # ---------------------------------------------------------
-# Evidence profile
+# Artifact profile
 # ---------------------------------------------------------
 
 st.subheader(
@@ -2049,6 +2023,13 @@ st.bar_chart(
     horizontal=True,
 )
 
+# ---------------------------------------------------------
+# Evidence profile
+# ---------------------------------------------------------
+
+st.subheader(
+    "Evidence Profile"
+)
 
 # ---------------------------------------------------------
 # Tabs
@@ -2150,7 +2131,7 @@ with rsid_tab:
 
             document_rsid_rows.append({
                 "Element":
-                    simplify_element_name(
+                    local_name(
                         item["element"]
                     ),
 
@@ -2314,7 +2295,7 @@ with rsid_tab:
 
 
 # =========================================================
-# REVISION TAB
+# RETAINED REVISION TAB
 # =========================================================
 
 with revision_tab:
@@ -2748,6 +2729,5 @@ with package_tab:
 st.divider()
 
 st.caption(
-    "DOCX Edit-Trail Analyser — "
-    "Digital Authenticity research prototype"
+    "DOCX Edit-Trail Analyser"
 )

@@ -2,3 +2,4 @@ streamlit>=1.40
 pandas
 altair
 matplotlib
+defusedxml==0.7.1
