@@ -1,23 +1,10 @@
 from baseline_classifier import MetadataOnlyBaseline
-
-
-CATEGORIES = [
-    "retained tracked-revision evidence",
-    "multiple-RSID-pattern evidence",
-    "metadata-only evidence",
-    "no selected edit artifact observed",
-]
-
-# Artifacts whose presence/absence is stated in the ground truth,
-# mapped to (ground-truth key, revision type).
-REVISION_ARTIFACTS = {
-    "Retained insertions": ("retained_insertions", "insertion"),
-    "Retained deletions": ("retained_deletions", "deletion"),
-}
+from helpers.constants import CATEGORIES
+from helpers.constants import REVISION_ARTIFACTS
 
 
 def _ratio(numerator, denominator):
-    """Return numerator/denominator, or None when undefined."""
+    # Return numerator/denominator, or None when undefined.
 
     if denominator == 0:
         return None
@@ -26,7 +13,8 @@ def _ratio(numerator, denominator):
 
 
 def _mean_defined(values):
-    """Mean of the values that are not None; None if there are none."""
+    
+    # Mean of the values that are not None; None if there are none."""
 
     defined = [v for v in values if v is not None]
 

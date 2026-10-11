@@ -1,81 +1,15 @@
-from datetime import datetime
+from helpers.constants import CONTENT_REVISION_TYPES
+from helpers.constants import RSID_SCOPES
+from helpers.constants import SECTION_ELEMENTS
 
-
-CONTENT_REVISION_TYPES = frozenset({
-    "insertion",
-    "deletion",
-    "move_from",
-    "move_to",
-})
-
-RSID_SCOPES = ("document", "content", "all")
-
-# Elements whose RSIDs describe section layout rather than text.
-# Templates carry these into every new document.
-SECTION_ELEMENTS = frozenset({"sectPr"})
-
+from helpers.helper_functions import parse_timestamp
+from helpers.helper_functions import clean_text
+from helpers.helper_functions import local_name
 
 class CorrelationEngine:
-    """
-    Correlates extracted DOCX artifacts into explainable
-    evidence categories.
 
-    The engine does not determine whether a document is
-    authentic or forged. It only describes patterns found
-    in the selected artifacts.
-
-    rsid_scope controls which RSIDs count towards the
-    multiple-RSID rule:
-
-        "document" (default)
-            Only RSIDs referenced by attributes in
-            word/document.xml. RSIDs that exist only in the
-            settings.xml RSID table (or only as rsidRoot) are
-            reported but do not trigger the rule, because
-            templates routinely pre-populate that table and would
-            otherwise make a freshly created document look like a
-            multi-session document.
-
-        "content"
-            Like "document", but also ignores RSIDs found on
-            section-properties elements (w:sectPr). The pilot
-            corpus showed that a brand-new document created from
-            a template already carries several distinct RSIDs on
-            w:sectPr, copied from the template, before any text
-            is typed.
-
-        "all"
-            RSIDs from rsidRoot, the settings table and the
-            document combined. This was the rule used by the
-            first prototype; it is kept so the two rules can be
-            compared as an ablation on the controlled corpus
-            (particularly on the same-template negative controls).
-
-    Both classify() and score_evidence_dimensions() use the same
-    scope, so the category and the evidence profile can never
-    disagree about RSIDs.
-    """
-
-    # -----------------------------------------------------
-    # Scoring thresholds (0-3 ordinal scale).
-    #
-    # Declared as class constants so they are visible, citable
-    # in the report, and can be re-calibrated against the
-    # Word-native corpus without touching the scoring logic.
-    # -----------------------------------------------------
-
-    # Distinct counted RSIDs -> score.
-    #   0       -> 0 none observed
-    #   1       -> 1 minimal  (consistent with a single save session)
-    #   2 - 4   -> 2 moderate
-    #   >= 5    -> 3 extensive
     RSID_MODERATE_MIN = 2
     RSID_EXTENSIVE_MIN = 5
-
-    # Content revisions (insertions, deletions, moves) -> score.
-    #   none, but other markers (paragraph marks, formatting) -> 1
-    #   1 - 4   -> 2 moderate
-    #   >= 5    -> 3 extensive
     REVISION_EXTENSIVE_MIN = 5
 
     def __init__(self, rsid_scope="document"):
@@ -100,27 +34,6 @@ class CorrelationEngine:
         core_properties,
         app_properties
     ):
-        """
-        Classify the available evidence.
-
-        Categories (checked in priority order):
-            - retained tracked-revision evidence
-            - multiple-RSID-pattern evidence
-            - metadata-only evidence
-            - no selected edit artifact observed
-
-        Returns:
-            dict: category, basis, limitations, evidence (a list
-            of traceable records naming the OOXML part, element,
-            attribute and value that support the category) and
-            rsid_scope.
-
-        This categorical result reports the single strongest
-        observed pattern. It should always be presented alongside
-        score_evidence_dimensions(), which reports the full
-        evidence profile, so a reader is never left with an
-        "edited" / "not edited" impression.
-        """
 
         revisions = revisions or []
 
@@ -311,23 +224,6 @@ class CorrelationEngine:
         core_properties,
         app_properties
     ):
-        """
-        Score the observed evidence independently across three
-        dimensions instead of collapsing everything into one
-        winning category.
-
-        This drives the dashboard's evidence-profile charts. A
-        document can score on more than one dimension at once
-        (for example moderate metadata AND extensive RSIDs with
-        no retained revisions); classify() surfaces only one.
-
-        Each dimension is scored on a 0-3 ordinal scale:
-            0 = none observed, 1 = minimal,
-            2 = moderate,      3 = extensive
-
-        Each entry contains "score", "label", "basis" and the raw
-        counts behind the score.
-        """
 
         return {
             "revision_evidence":
@@ -464,27 +360,14 @@ class CorrelationEngine:
         core_properties,
         app_properties
     ):
-        """
-        Score context metadata by signals that hint at a
-        save-after-creation history, rather than by how many
-        fields are merely populated (nearly every Word-saved
-        file has all of them).
-
-        Signals (1 point each):
-            - dcterms:modified is later than dcterms:created
-            - cp:lastModifiedBy differs from dc:creator
-
-        The score is capped at 2 because these values are
-        editable and only contextual.
-        """
 
         core = core_properties or {}
 
-        creator = self._clean(core.get("creator"))
-        last_modified_by = self._clean(core.get("last_modified_by"))
+        creator = clean_text(core.get("creator"))
+        last_modified_by = clean_text(core.get("last_modified_by"))
 
-        created = self._parse_timestamp(core.get("created"))
-        modified = self._parse_timestamp(core.get("modified"))
+        created = parse_timestamp(core.get("created"))
+        modified = parse_timestamp(core.get("modified"))
 
         signals = []
 
@@ -578,10 +461,7 @@ class CorrelationEngine:
 
             if item is not None:
 
-                element = item.get("element", "")
-
-                if "}" in element:
-                    element = element.split("}", 1)[1]
+                element = local_name(item.get("element", "")) or ""
 
                 trace.append({
                     "evidence_group": "RSID",
@@ -683,18 +563,14 @@ class CorrelationEngine:
         if self.rsid_scope == "content":
             return self._referenced_rsids([
                 item for item in (document_rsids or [])
-                if self._local(item.get("element", ""))
+                if local_name(item.get("element", ""))
                 not in SECTION_ELEMENTS
             ])
 
         return self._collect_unique_rsids(
             rsid_root, rsid_table, document_rsids
         )
-
-    def _local(self, tag):
-
-        return tag.split("}", 1)[1] if "}" in tag else tag
-
+        
     def _referenced_rsids(self, document_rsids):
 
         return {
@@ -702,27 +578,6 @@ class CorrelationEngine:
             for item in (document_rsids or [])
             if item.get("value")
         }
-
-    def _clean(self, value):
-
-        if value is None:
-            return None
-
-        value = value.strip()
-
-        return value or None
-
-    def _parse_timestamp(self, value):
-
-        value = self._clean(value)
-
-        if not value:
-            return None
-
-        try:
-            return datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except ValueError:
-            return None
 
     def _label_for_score(self, score):
 

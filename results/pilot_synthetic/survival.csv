@@ -1,0 +1,9 @@
+sample,parent,transformation,artifact,parent_count,child_count,retained,introduced,survival_rate
+02_edited.docx,01_baseline.docx,02_edited,rsidRoot,1,1,1,0,1.0
+02_edited.docx,01_baseline.docx,02_edited,Settings RSID table,9,9,9,0,1.0
+02_edited.docx,01_baseline.docx,02_edited,Referenced RSIDs,3,3,3,0,1.0
+02_edited.docx,01_baseline.docx,02_edited,Content revisions,0,0,0,0,
+02_edited.docx,01_baseline.docx,02_edited,Other revision markers,0,0,0,0,
+02_edited.docx,01_baseline.docx,02_edited,Author metadata,2,2,2,0,1.0
+02_edited.docx,01_baseline.docx,02_edited,Timestamp metadata,2,2,1,1,0.5
+02_edited.docx,01_baseline.docx,02_edited,Application metadata,2,2,2,0,1.0

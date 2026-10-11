@@ -1,27 +1,12 @@
 class GroundTruthEvaluator:
-    """
-    Evaluates extracted DOCX evidence against the known
-    ground truth recorded for a controlled sample.
-
-    The evaluator measures agreement between expected and
-    observed artifacts. It does not determine authenticity,
-    forgery, or whether an undocumented editing event
-    occurred.
-    """
-
+    
+    #Evaluates extracted DOCX evidence against the known ground truth recorded for a controlled sample.
     def evaluate_sample(
         self,
         ground_truth,
         evidence,
         baseline_evidence=None
     ):
-        """
-        Evaluate one controlled sample.
-
-        baseline_evidence is optional and is only required
-        for expectations that explicitly compare a sample
-        with the baseline.
-        """
 
         expected = ground_truth.get(
             "expected_selected_evidence",

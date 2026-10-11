@@ -1,26 +1,14 @@
 from collections import Counter
 
-
+#Converts evidence extracted from multiple DOCX samples into comparable research records.
 class CorpusComparison:
-    """
-    Converts evidence extracted from multiple DOCX samples
-    into comparable research records.
-
-    This class does not determine authenticity or whether
-    a document was edited. It summarizes observed artifacts
-    for comparison across controlled samples.
-    """
 
     def create_sample_record(
         self,
         sample_name,
         evidence
     ):
-        """
-        Create a normalized comparison record for one
-        analysed DOCX sample.
-        """
-
+        
         revisions = evidence.get(
             "revisions",
             []
@@ -125,17 +113,8 @@ class CorpusComparison:
         self,
         analysed_samples
     ):
-        """
-        Create comparison records for multiple samples.
-
-        analysed_samples format:
-
-        {
-            "01_baseline.docx": evidence,
-            "02_edited.docx": evidence,
-            ...
-        }
-        """
+        
+        #Create comparison records for multiple samples.
 
         records = []
 
@@ -158,13 +137,6 @@ class CorpusComparison:
         self,
         records
     ):
-        """
-        Create a simple presence/absence matrix describing
-        selected observed artifacts.
-
-        Returns:
-            list[dict]
-        """
 
         matrix = []
 

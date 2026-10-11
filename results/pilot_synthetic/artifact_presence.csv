@@ -1,0 +1,4 @@
+sample,rsidRoot,Settings RSID table,Referenced RSIDs,Content revisions,Other revision markers,Author metadata,Timestamp metadata,Application metadata
+01_baseline.docx,1,9,3,0,0,2,2,2
+02_edited.docx,1,9,3,0,0,2,2,2
+03_tracked_changes.docx,1,9,3,2,0,2,2,2
