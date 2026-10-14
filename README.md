@@ -240,7 +240,7 @@ Each JSON file lists the exact Word steps for its sample in `controlled_actions`
 | RQ2 | Does rule-based correlation of RSID, revision and context evidence classify the predefined categories more accurately than a metadata-only baseline? | accuracy, per-category precision, recall and false-positive rate, correlation benefit, confusion matrices, RSID-rule ablation, template false positives |
 | RQ3 | How do save without editing, accepting and rejecting tracked changes, copying and metadata cleaning affect the survival and interpretation of the selected artifacts? | parent-to-child survival rate per artifact group (survival heatmap) |
 
-Undefined ratios are reported as `n/a`, never as 0 or 1. Metrics based on fewer than 10 labelled samples are flagged as illustrative.
+Undefined per-class ratios are reported as `n/a`, never as 0 or 1. Macro precision and macro recall both average over the categories that have at least one labelled sample; a category that has samples but was never predicted contributes a precision of 0 to the macro average, so both averages cover the same categories. Metrics based on fewer than 10 labelled samples are flagged as illustrative.
 
 **Pilot result (synthetic corpus, 3 samples):** 14/14 evaluated ground-truth checks matched. The pilot also showed that an unedited file created from python-docx's default template already carries 3 distinct RSIDs, all on `w:sectPr`, which motivated the `content` RSID rule. Whether Word templates behave the same way is tested by the two same-template negative controls in the Word-native corpus. See `results/pilot_synthetic/`.
 
