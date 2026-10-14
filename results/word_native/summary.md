@@ -1,6 +1,6 @@
 # Corpus evaluation summary
 
-Generated 2026-09-28T20:09:25.281171+00:00 - 12 samples analysed, 12 with ground truth, 12 with a classification label.
+Generated 2026-10-14T05:43:55.105925+00:00 - 12 samples analysed, 12 with ground truth, 12 with a classification label.
 
 Extraction correctness: 53/54 evaluated ground-truth checks matched (98%).
 
@@ -27,7 +27,7 @@ Extraction correctness: 53/54 evaluated ground-truth checks matched (98%).
 | --- | --- | --- | --- | --- |
 | document | 0.92 | 0.94 | 0.94 | 0/2 |
 | content | 0.92 | 0.94 | 0.94 | 0/2 |
-| all | 0.58 | 0.77 | 0.67 | 2/2 |
+| all | 0.58 | 0.52 | 0.67 | 2/2 |
 | metadata-only baseline | 0.42 | n/a | n/a | n/a |
 
 ## Revision artifact detection and survival

@@ -1,6 +1,6 @@
 {
   "run": {
-    "generated_utc": "2026-09-28T20:09:25.281171+00:00",
+    "generated_utc": "2026-10-14T05:43:55.105925+00:00",
     "python": "3.14.7",
     "platform": "Windows-11-10.0.26200-SP0",
     "primary_rsid_scope": "document",
@@ -79,7 +79,7 @@
     "baseline_classification": {
       "samples": 12,
       "accuracy": 0.4166666666666667,
-      "macro_precision": 0.4166666666666667,
+      "macro_precision": 0.1388888888888889,
       "macro_recall": 0.3333333333333333,
       "per_class": {
         "retained tracked-revision evidence": {
@@ -347,7 +347,7 @@
     },
     "all": {
       "accuracy": 0.5833333333333334,
-      "macro_precision": 0.7727272727272727,
+      "macro_precision": 0.5151515151515151,
       "macro_recall": 0.6666666666666666,
       "negative_controls": 2,
       "negative_control_rsid_false_positives": 2,
