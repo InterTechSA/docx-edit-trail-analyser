@@ -81,15 +81,24 @@ class ResearchMetrics:
                 "false_positive_rate": _ratio(fp, fp + tn),
             }
 
+        # Macro averages run over the same classes: those with at
+        # least one labelled sample. A class with samples but no
+        # predictions contributes a precision of 0 to the average
+        # (its per-class precision stays None / n/a), so precision
+        # and recall always average over the same set of classes.
+        supported = [
+            c for c in per_class.values() if c["support"] > 0
+        ]
+
         return {
             "samples": total,
             "accuracy": _ratio(correct, total),
             "macro_precision": _mean_defined(
-                c["precision"] for c in per_class.values()
+                c["precision"] if c["precision"] is not None else 0.0
+                for c in supported
             ),
             "macro_recall": _mean_defined(
-                c["recall"] for c in per_class.values()
-                if c["support"] > 0
+                c["recall"] for c in supported
             ),
             "per_class": per_class,
         }

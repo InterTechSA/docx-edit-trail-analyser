@@ -158,6 +158,40 @@ class TestCorpusEvaluation(unittest.TestCase):
 
         self.assertEqual(result["matrix"], [[1, 1], [0, 1]])
 
+    def test_macro_averages_cover_same_classes(self):
+
+        # Reproduces the Word-native "all" RSID rule: the metadata
+        # class has samples but is never predicted.
+        y_true = ["meta"] * 5 + ["multi"] * 6 + ["tracked"]
+        y_pred = ["multi"] * 11 + ["tracked"]
+
+        report = ResearchMetrics().classification_report(
+            y_true, y_pred, labels=["meta", "multi", "tracked", "none"]
+        )
+
+        # Per-class precision stays undefined (n/a) ...
+        self.assertIsNone(report["per_class"]["meta"]["precision"])
+
+        # ... but counts as 0 in the macro average, which runs over
+        # the three classes with samples, as recall does.
+        self.assertAlmostEqual(
+            report["macro_precision"], (0 + 6 / 11 + 1) / 3
+        )
+        self.assertAlmostEqual(report["macro_recall"], (0 + 1 + 1) / 3)
+        self.assertEqual(round(report["macro_precision"], 2), 0.52)
+
+    def test_macro_averages_unchanged_when_every_class_predicted(self):
+
+        y_true = ["meta"] * 5 + ["multi"] * 6 + ["tracked"]
+        y_pred = ["meta"] * 6 + ["multi"] * 5 + ["tracked"]
+
+        report = ResearchMetrics().classification_report(
+            y_true, y_pred, labels=["meta", "multi", "tracked", "none"]
+        )
+
+        self.assertEqual(round(report["macro_precision"], 2), 0.94)
+        self.assertEqual(round(report["macro_recall"], 2), 0.94)
+
 
 class TestBatchEvaluate(unittest.TestCase):
 
